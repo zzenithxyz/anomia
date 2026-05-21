@@ -1,445 +1,454 @@
--- ╔══════════════════════════════════════════════════════╗
--- ║  ANOMIA  |  v2  |  RIVALS SPOOFER                   ║
--- ║  Full client-side spoofer — executor-injected        ║
--- ╚══════════════════════════════════════════════════════╝
+-- ═══════════════════════════════════════════════════
+--  ANOMIA  v2.1  |  RIVALS SPOOFER
+--  inject via any executor  |  RightShift = menu
+-- ═══════════════════════════════════════════════════
 
--- ┌─────────────────────────────────────────────────────┐
---   SERVICES
--- └─────────────────────────────────────────────────────┘
-local Players          = game:GetService("Players")
-local RunService       = game:GetService("RunService")
-local TweenService     = game:GetService("TweenService")
-local UIS              = game:GetService("UserInputService")
-local HttpService      = game:GetService("HttpService")
-local StarterGui       = game:GetService("StarterGui")
-local CoreGui          = game:GetService("CoreGui")
+-- ── SERVICES ────────────────────────────────────────
+local Players     = game:GetService("Players")
+local RunService  = game:GetService("RunService")
+local TweenSvc    = game:GetService("TweenService")
+local UIS         = game:GetService("UserInputService")
+local Http        = game:GetService("HttpService")
+local SG          = game:GetService("StarterGui")
+local CG          = game:GetService("CoreGui")
 
-local lp    = Players.LocalPlayer
-local lpgui = lp:WaitForChild("PlayerGui")
+local lp  = Players.LocalPlayer
+local lpg = lp:WaitForChild("PlayerGui")
 
--- ┌─────────────────────────────────────────────────────┐
---   THEMES
--- └─────────────────────────────────────────────────────┘
-local THEMES = {
-    Dark = {
-        Root        = Color3.fromRGB(9,  11, 18),
-        Sidebar     = Color3.fromRGB(6,   8, 14),
-        Content     = Color3.fromRGB(11, 13, 21),
-        Card        = Color3.fromRGB(16, 18, 29),
-        CardHover   = Color3.fromRGB(21, 23, 36),
-        Accent      = Color3.fromRGB(92, 165, 255),
-        AccentDim   = Color3.fromRGB(50,  95, 175),
-        TextPri     = Color3.fromRGB(228, 231, 242),
-        TextSec     = Color3.fromRGB(100, 107, 138),
-        Border      = Color3.fromRGB(22,  25, 40),
-        Logo        = Color3.fromRGB(255, 255, 255),
-        Toggle_OFF  = Color3.fromRGB(38,  40, 58),
-        Toggle_ON   = Color3.fromRGB(92, 165, 255),
-        Watermark   = Color3.fromRGB(9,  11, 18),
-    },
-    Light = {
-        Root        = Color3.fromRGB(246, 247, 252),
-        Sidebar     = Color3.fromRGB(234, 236, 246),
-        Content     = Color3.fromRGB(251, 252, 255),
-        Card        = Color3.fromRGB(255, 255, 255),
-        CardHover   = Color3.fromRGB(240, 242, 252),
-        Accent      = Color3.fromRGB(55,  125, 225),
-        AccentDim   = Color3.fromRGB(30,   80, 175),
-        TextPri     = Color3.fromRGB(16,  18,  30),
-        TextSec     = Color3.fromRGB(100, 108, 135),
-        Border      = Color3.fromRGB(210, 214, 230),
-        Logo        = Color3.fromRGB(10,  12,  22),
-        Toggle_OFF  = Color3.fromRGB(200, 204, 220),
-        Toggle_ON   = Color3.fromRGB(55,  125, 225),
-        Watermark   = Color3.fromRGB(246, 247, 252),
-    },
-}
-
--- ┌─────────────────────────────────────────────────────┐
---   CONFIG
--- └─────────────────────────────────────────────────────┘
+-- ── CONFIG ───────────────────────────────────────────
 local CFG = {
     -- Identity
-    SpoofUsername     = true,
-    FakeUsername      = "AnoPlayer",
-    SpoofDisplay      = true,
-    FakeDisplay       = "anomia",
-    ShowOnBillboard   = true,
-    ShowOnKillfeed    = true,
-    CycleNames        = false,
-    CycleList         = {"AnoPlayer","specter","wraith","phantom","null_0"},
-    CycleInterval     = 8,
+    SpoofUsername = true,   FakeUsername = "AnoPlayer",
+    SpoofDisplay  = true,   FakeDisplay  = "anomia",
+    ShowOnKillfeed = true,
 
-    -- Perf display
-    SpoofPing         = true,  FakePing   = 9,
-    SpoofFPS          = true,  FakeFPS    = 240,
-    SpoofRegion       = true,  FakeRegion = "EU-West",
+    -- Perf display (watermark only)
+    SpoofPing  = true, FakePing   = 9,
+    SpoofFPS   = true, FakeFPS    = 240,
+    SpoofRegion= true, FakeRegion = "EU-West",
 
     -- Stats
-    SpoofKills        = true,  FakeKills       = 9999,
-    SpoofDeaths       = true,  FakeDeaths      = 1,
-    SpoofStreak       = true,  FakeStreak      = 999,
-    SpoofWins         = true,  FakeWins        = 9999,
-    SpoofLosses       = true,  FakeLosses      = 0,
-    SpoofELO          = true,  FakeELO         = 3800,
-    SpoofLevel        = true,  FakeLevel       = 999,
-    ApplyToCareer     = true,
-    ApplyToLDB        = true,
+    SpoofKills   = true, FakeKills   = 9999,
+    SpoofDeaths  = true, FakeDeaths  = 1,
+    SpoofStreak  = true, FakeStreak  = 999,
+    SpoofWins    = true, FakeWins    = 9999,
+    SpoofLosses  = true, FakeLosses  = 0,
+    SpoofELO     = true, FakeELO     = 3800,
+    SpoofLevel   = true, FakeLevel   = 999,
 
-    -- Rank season spoofer
-    RankSpoofEnabled  = false,
-    RankSeason        = "Season 2",
-    RankTier          = "Nemesis",
+    -- Rank season
+    RankSpoof  = false,
+    RankSeason = "Season 2",
+    RankTier   = "Nemesis",
 
     -- Status badge
-    StatusBadge       = "None",
+    StatusBadge = "None",
 
-    -- Skin / cosmetic unlock
-    SkinUnlockAll     = false,
-    WrapUnlockAll     = false,
-    CharmUnlockAll    = false,
-    SelectedSkin      = "Default",
+    -- Skins
+    SkinUnlockAll  = false,
+    WrapUnlockAll  = false,
+    CharmUnlockAll = false,
+    SelectedSkin   = "Default",
 
     -- Kill feed
-    SpoofKillfeed     = true,
-    KFKiller          = "anomia",
-    KFVictim          = "target",
-    KFWeapon          = "AK-47",
-    KFStyle           = "Clean",
+    SpoofKF = true,
+    KFKiller = "anomia",
+    KFVictim = "target",
+    KFWeapon = "AK-47",
+    KFStyle  = "Clean",
 
     -- Watermark
-    WMEnabled         = true,
-    WMText            = "anomia  |  v2",
-    WMSubAuto         = true,
-    WMSubText         = "",
-    WMRainbow         = false,
-    WMSize            = 13,
-
-    -- UI
-    Theme             = "Dark",
-    MenuKey           = "RightShift",
-    MenuKey2          = "",          -- optional second key
-    ConfigCycleKey    = "F8",
-    ConfigCycleKey2   = "",
-    ConfigSlot        = 1,
+    WMEnabled  = true,
+    WMText     = "anomia  |  v2.1",
+    WMSubAuto  = true,
+    WMSubText  = "",
+    WMRainbow  = false,
+    WMSize     = 13,
 
     -- Extra
-    InfJump           = false,
-    Noclip            = false,
-    FakeAFK           = false,
-    AntiDead          = false,
-    CleanHUD          = false,
-    ESPNames          = false,
+    InfJump  = false,
+    Noclip   = false,
+    FakeAFK  = false,
+    CleanHUD = false,
+
+    -- UI
+    Theme           = "Dark",
+    MenuKey         = "RightShift",
+    MenuKey2        = "",
+    CfgCycleKey     = "F8",
+    CfgCycleKey2    = "",
+    ConfigSlot      = 1,
 }
 
--- Active theme reference (updated when theme changes)
-local T = THEMES[CFG.Theme]
-local function refreshTheme() T = THEMES[CFG.Theme] end
+-- ── THEMES ───────────────────────────────────────────
+local TH = {
+    Dark = {
+        Win    = Color3.fromRGB(9,   11,  18),
+        Side   = Color3.fromRGB(7,    9,  15),
+        Cont   = Color3.fromRGB(12,  14,  22),
+        Card   = Color3.fromRGB(17,  19,  30),
+        CardH  = Color3.fromRGB(22,  24,  37),
+        Acc    = Color3.fromRGB(96,  168, 255),
+        AccDim = Color3.fromRGB(48,  95,  178),
+        TxtP   = Color3.fromRGB(228, 232, 245),
+        TxtS   = Color3.fromRGB(100, 108, 140),
+        Bdr    = Color3.fromRGB(24,  27,  43),
+        Logo   = Color3.fromRGB(255, 255, 255),
+        TonOff = Color3.fromRGB(36,  38,  55),
+        TonOn  = Color3.fromRGB(96,  168, 255),
+        WM     = Color3.fromRGB(9,   11,  18),
+    },
+    Light = {
+        Win    = Color3.fromRGB(248, 249, 254),
+        Side   = Color3.fromRGB(236, 238, 248),
+        Cont   = Color3.fromRGB(252, 253, 255),
+        Card   = Color3.fromRGB(255, 255, 255),
+        CardH  = Color3.fromRGB(241, 243, 253),
+        Acc    = Color3.fromRGB(52,  120, 230),
+        AccDim = Color3.fromRGB(28,   78, 178),
+        TxtP   = Color3.fromRGB(14,  16,  28),
+        TxtS   = Color3.fromRGB(95,  103, 132),
+        Bdr    = Color3.fromRGB(212, 216, 232),
+        Logo   = Color3.fromRGB(10,  12,  22),
+        TonOff = Color3.fromRGB(198, 202, 218),
+        TonOn  = Color3.fromRGB(52,  120, 230),
+        WM     = Color3.fromRGB(248, 249, 254),
+    },
+}
+local T = TH[CFG.Theme]
+local function rt() T = TH[CFG.Theme] end
 
--- ┌─────────────────────────────────────────────────────┐
---   CONFIG SAVE / LOAD  (writefile/readfile — executor)
--- └─────────────────────────────────────────────────────┘
-local CONFIG_FILE = "anomia_rivals_v2_slot"
-
-local function saveSlot(slot)
+-- ── SAVE/LOAD ─────────────────────────────────────────
+local CFGF = "anomia_rivals_v21_slot"
+local function saveSlot(s)
     if not writefile then return end
-    local out = {}
+    local o={}
     for k,v in pairs(CFG) do
-        local t = type(v)
-        if t=="boolean" or t=="number" or t=="string" or t=="table" then
-            out[k] = v
-        end
+        if type(v)~="userdata" and type(v)~="function" then o[k]=v end
     end
-    pcall(writefile, CONFIG_FILE..slot..".json", HttpService:JSONEncode(out))
+    pcall(writefile, CFGF..s..".json", Http:JSONEncode(o))
 end
-
-local function loadSlot(slot)
+local function loadSlot(s)
     if not readfile then return end
-    local ok, raw = pcall(readfile, CONFIG_FILE..slot..".json")
+    local ok,raw = pcall(readfile, CFGF..s..".json")
     if not ok or not raw then return end
-    local ok2, tbl = pcall(function() return HttpService:JSONDecode(raw) end)
+    local ok2,tbl = pcall(function() return Http:JSONDecode(raw) end)
     if not ok2 or not tbl then return end
     for k,v in pairs(tbl) do
-        if CFG[k] ~= nil and type(CFG[k]) == type(v) then CFG[k] = v end
+        if CFG[k]~=nil and type(CFG[k])==type(v) then CFG[k]=v end
     end
-    refreshTheme()
+    rt()
 end
-
 loadSlot(CFG.ConfigSlot)
 
--- ┌─────────────────────────────────────────────────────┐
---   UTILITY
--- └─────────────────────────────────────────────────────┘
-local TI_FAST   = TweenInfo.new(0.18, Enum.EasingStyle.Quad,  Enum.EasingDirection.Out)
-local TI_MED    = TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-local TI_SLOW   = TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+-- ── UTIL ─────────────────────────────────────────────
+local TI_F = TweenInfo.new(0.16, Enum.EasingStyle.Quad,  Enum.EasingDirection.Out)
+local TI_M = TweenInfo.new(0.26, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
-local function tw(inst, ti, props) TweenService:Create(inst,ti,props):Play() end
+local function tw(i,ti,p) TweenSvc:Create(i,ti,p):Play() end
 
-local function new(cls, props, parent)
-    local i = Instance.new(cls)
-    for k,v in pairs(props or {}) do i[k]=v end
-    if parent then i.Parent=parent end
+local function new(c,p,par)
+    local i=Instance.new(c)
+    for k,v in pairs(p or {}) do i[k]=v end
+    if par then i.Parent=par end
     return i
 end
 
-local function corner(r, parent)
-    return new("UICorner",{CornerRadius=UDim.new(0,r)},parent)
-end
-
-local function stroke(col, thickness, trans, parent)
-    return new("UIStroke",{Color=col,Thickness=thickness,Transparency=trans or 0},parent)
-end
-
-local function pad(t,b,l,r, parent)
+local function cor(r,p) return new("UICorner",{CornerRadius=UDim.new(0,r)},p) end
+local function str(c,th,tr,p) return new("UIStroke",{Color=c,Thickness=th,Transparency=tr or 0},p) end
+local function pd(t,b,l,r,p)
     return new("UIPadding",{
         PaddingTop=UDim.new(0,t),PaddingBottom=UDim.new(0,b),
         PaddingLeft=UDim.new(0,l),PaddingRight=UDim.new(0,r)
-    }, parent)
+    },p)
 end
 
-local function hsvCycle(t) return Color3.fromHSV(t%1,0.85,1) end
+local function hsvC(t) return Color3.fromHSV(t%1,0.8,1) end
 
-local RANK_TABLE = {
-    [0]="Unranked",   [200]="Bronze III", [400]="Bronze II",  [600]="Bronze I",
+local RANKS = {
+    [0]="Unranked",[200]="Bronze III",[400]="Bronze II",[600]="Bronze I",
     [800]="Silver III",[1000]="Silver II",[1200]="Silver I",
-    [1400]="Gold III", [1600]="Gold II",  [1800]="Gold I",
-    [2000]="Plat III", [2200]="Plat II",  [2400]="Plat I",
+    [1400]="Gold III",[1600]="Gold II",[1800]="Gold I",
+    [2000]="Plat III",[2200]="Plat II",[2400]="Plat I",
     [2600]="Diamond III",[2800]="Diamond II",[3000]="Diamond I",
-    [3200]="Onyx III", [3400]="Onyx II",  [3600]="Nemesis",
-    [4000]="Archnemesis",
+    [3200]="Onyx III",[3400]="Onyx II",[3600]="Nemesis",[4000]="Archnemesis",
 }
-local function eloToRank(e)
-    local best,bv = "Unranked", 0
-    for threshold,name in pairs(RANK_TABLE) do
-        if e>=threshold and threshold>=bv then best=name;bv=threshold end
+local function elo2rank(e)
+    local b,bv="Unranked",0
+    for t,n in pairs(RANKS) do
+        if e>=t and t>=bv then b=n;bv=t end
     end
-    return best
+    return b
 end
 
-local BADGE_STR = {
-    None="", ["Roblox+"]="[R+] ", Moderator="[MOD] ",
-    Developer="[DEV] ", RobloxMod="[RBLX] ",
+local BADGE = {
+    None="",["Roblox+"]="[R+] ",Moderator="[MOD] ",
+    Developer="[DEV] ",RobloxMod="[RBLX] ",
 }
 
-local function spoofName()
-    if CFG.CycleNames and #CFG.CycleList>0 then
-        return CFG.CycleList[1]
-    end
-    return CFG.FakeUsername
+local function fakeName()
+    return CFG.SpoofUsername and CFG.FakeUsername or lp.Name
+end
+local function fakeDisplay()
+    local b=BADGE[CFG.StatusBadge] or ""
+    return b..(CFG.SpoofDisplay and CFG.FakeDisplay or lp.DisplayName)
 end
 
-local function spoofDisplay()
-    local badge = BADGE_STR[CFG.StatusBadge] or ""
-    return badge .. (CFG.SpoofDisplay and CFG.FakeDisplay or lp.DisplayName)
-end
+-- ═══════════════════════════════════════════════════
+--  SPOOF ENGINE
+--  Strategy:
+--   1. hookLabel  → patches immediately + on every Text change
+--   2. scanTree   → batched DescendantAdded + initial sweep
+--   3. 350ms pulse → re-applies on cached labels Rivals keeps overwriting
+--   4. Rivals billboard → patches Rivals' own streak BillboardGui
+-- ═══════════════════════════════════════════════════
 
--- ┌─────────────────────────────────────────────────────┐
---   PERFORMANCE-SAFE SPOOF ENGINE
---   No polling loops — purely event-driven.
---   Central patcher called only on DescendantAdded.
--- └─────────────────────────────────────────────────────┘
-local patchedLabels = {}   -- weak set to avoid re-patching
-setmetatable(patchedLabels, {__mode="k"})
+local hooked  = {}  -- [label] = true  (prevents double-hooking)
+local cached  = {}  -- [label] = true  (labels we actively keep patching)
+setmetatable(hooked, {__mode="k"})
+setmetatable(cached, {__mode="k"})
 
-local STAT_PATTERNS = {
-    -- {find pattern, replace function}
-    {"Kills:%s*(%d+)",        function() return "Kills: "..CFG.FakeKills         end, "SpoofKills"},
-    {"Eliminations:%s*(%d+)", function() return "Eliminations: "..CFG.FakeKills  end, "SpoofKills"},
-    {"Deaths:%s*(%d+)",       function() return "Deaths: "..CFG.FakeDeaths       end, "SpoofDeaths"},
-    {"Winstreak:%s*(%d+)",    function() return "Winstreak: "..CFG.FakeStreak    end, "SpoofStreak"},
-    {"Win Streak:%s*(%d+)",   function() return "Win Streak: "..CFG.FakeStreak   end, "SpoofStreak"},
-    {"Streak:%s*(%d+)",       function() return "Streak: "..CFG.FakeStreak       end, "SpoofStreak"},
-    {"Wins:%s*(%d+)",         function() return "Wins: "..CFG.FakeWins           end, "SpoofWins"},
-    {"Duel Wins:%s*(%d+)",    function() return "Duel Wins: "..CFG.FakeWins      end, "SpoofWins"},
-    {"Losses:%s*(%d+)",       function() return "Losses: "..CFG.FakeLosses       end, "SpoofLosses"},
-    {"ELO:%s*(%d+)",          function() return "ELO: "..CFG.FakeELO             end, "SpoofELO"},
-    {"Elo:%s*(%d+)",          function() return "Elo: "..CFG.FakeELO             end, "SpoofELO"},
-    {"%d+ ELO",               function() return CFG.FakeELO.." ELO"             end, "SpoofELO"},
-    {"Level:%s*(%d+)",        function() return "Level: "..CFG.FakeLevel         end, "SpoofLevel"},
-    {"Lvl%s*(%d+)",           function() return "Lvl "..CFG.FakeLevel            end, "SpoofLevel"},
-    -- Rank tier names
-    {"Bronze%s*[III|II|I]*",  function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Silver%s*[III|II|I]*",  function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Gold%s*[III|II|I]*",    function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Platinum%s*[III|II|I]*",function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Diamond%s*[III|II|I]*", function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Onyx%s*[III|II|I]*",    function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Nemesis",               function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Archnemesis",           function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
-    {"Unranked",              function() return CFG.RankSpoofEnabled and CFG.RankTier or nil end, "RankSpoofEnabled"},
+-- Stat replace patterns  {pattern, replacement_fn, cfg_key}
+local PATS = {
+    {"Kills:%s*%d+",          function() return "Kills: "..CFG.FakeKills           end,"SpoofKills"},
+    {"Eliminations:%s*%d+",   function() return "Eliminations: "..CFG.FakeKills    end,"SpoofKills"},
+    {"Elims:%s*%d+",          function() return "Elims: "..CFG.FakeKills            end,"SpoofKills"},
+    {"Deaths:%s*%d+",         function() return "Deaths: "..CFG.FakeDeaths         end,"SpoofDeaths"},
+    {"Winstreak:%s*%d+",      function() return "Winstreak: "..CFG.FakeStreak      end,"SpoofStreak"},
+    {"Win Streak:%s*%d+",     function() return "Win Streak: "..CFG.FakeStreak     end,"SpoofStreak"},
+    {"Streak:%s*%d+",         function() return "Streak: "..CFG.FakeStreak         end,"SpoofStreak"},
+    {"Wins:%s*%d+",           function() return "Wins: "..CFG.FakeWins             end,"SpoofWins"},
+    {"Duel Wins:%s*%d+",      function() return "Duel Wins: "..CFG.FakeWins        end,"SpoofWins"},
+    {"Losses:%s*%d+",         function() return "Losses: "..CFG.FakeLosses         end,"SpoofLosses"},
+    {"ELO:%s*%d+",            function() return "ELO: "..CFG.FakeELO               end,"SpoofELO"},
+    {"Elo:%s*%d+",            function() return "Elo: "..CFG.FakeELO               end,"SpoofELO"},
+    {"%d+ ELO",               function() return CFG.FakeELO.." ELO"               end,"SpoofELO"},
+    {"%d+ Elo",               function() return CFG.FakeELO.." Elo"               end,"SpoofELO"},
+    {"Level:%s*%d+",          function() return "Level: "..CFG.FakeLevel           end,"SpoofLevel"},
+    {"Lvl%s*%d+",             function() return "Lvl "..CFG.FakeLevel              end,"SpoofLevel"},
+    -- Rank tier replacements
+    {"Bronze%s?[III|II|I]*",  function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Silver%s?[III|II|I]*",  function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Gold%s?[III|II|I]*",    function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Platinum%s?[III|II|I]*",function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Diamond%s?[III|II|I]*", function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Onyx%s?[III|II|I]*",    function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Nemesis",               function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Archnemesis",           function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
+    {"Unranked",              function() return CFG.RankSpoof and CFG.RankTier or nil end,"RankSpoof"},
 }
 
-local function applySpoof(label)
-    local original = label.Text
-    local t = original
+local function applySpoof(lbl)
+    local orig = lbl.Text
+    local t    = orig
 
-    -- Name spoofs
+    -- Name replacement
     if CFG.SpoofUsername and lp.Name ~= "" then
-        t = t:gsub(lp.Name, spoofName())
+        t = t:gsub(lp.Name, fakeName())
     end
     if CFG.SpoofDisplay and lp.DisplayName ~= "" then
-        t = t:gsub(lp.DisplayName, spoofDisplay())
+        t = t:gsub(lp.DisplayName, fakeDisplay())
     end
 
-    -- Stat spoofs
-    for _, def in ipairs(STAT_PATTERNS) do
-        local pat, repFn, cfgKey = def[1], def[2], def[3]
-        if CFG[cfgKey] then
-            local rep = repFn()
-            if rep then
-                t = t:gsub(pat, rep)
-            end
+    -- Stat/rank replacements
+    for _,def in ipairs(PATS) do
+        local pat,fn,key = def[1],def[2],def[3]
+        if CFG[key] then
+            local rep = fn()
+            if rep then t = t:gsub(pat, rep) end
         end
     end
 
-    if t ~= original then
-        label.Text = t
-    end
-end
-
-local function hookLabel(obj)
-    if patchedLabels[obj] then return end
-    if not (obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox")) then return end
-    patchedLabels[obj] = true
-    applySpoof(obj)
-    obj:GetPropertyChangedSignal("Text"):Connect(function()
-        -- Only re-apply if the text changed to something we haven't already spoofed
-        applySpoof(obj)
-    end)
-end
-
-local function scanTree(root)
-    -- Non-blocking scan via task.spawn batching
-    task.spawn(function()
-        local descendants = root:GetDescendants()
-        for i = 1, #descendants do
-            pcall(hookLabel, descendants[i])
-            -- Yield every 50 items to avoid frame drops
-            if i % 50 == 0 then task.wait() end
+    -- Rivals streak: if the label IS just a number and streak spoof is on
+    if CFG.SpoofStreak then
+        if t:match("^%d+$") then
+            t = tostring(CFG.FakeStreak)
         end
-    end)
-    root.DescendantAdded:Connect(function(v)
-        task.wait()   -- 1 frame delay so text is set
-        pcall(hookLabel, v)
-    end)
-end
+        -- "X Streak" format Rivals uses
+        t = t:gsub("^(%d+)( Streak)$", CFG.FakeStreak.."%2")
+    end
 
--- Hook PlayerGui + CoreGui (executor-level)
-task.spawn(function()
-    task.wait(2)  -- wait for game to load
-    scanTree(lpgui)
-    pcall(scanTree, CoreGui)
-end)
-
-lp.CharacterAdded:Connect(function()
-    task.wait(1)
-    pcall(scanTree, CoreGui)
-end)
-
--- ┌─────────────────────────────────────────────────────┐
---   RIVALS-SPECIFIC HOOKS
---   Target the known GUI names Rivals uses.
--- └─────────────────────────────────────────────────────┘
-local rivalsTargetGuis = {
-    -- Rivals ScreenGui name patterns (lowercase match)
-    "hud","killfeed","leaderboard","career","endgame",
-    "scoreboard","playerlist","matchend","stats","playercard",
-    "duelsummary","ranking","ranked","profile",
-}
-
-local function isRivalsGui(name)
-    local low = name:lower()
-    for _, pattern in ipairs(rivalsTargetGuis) do
-        if low:find(pattern, 1, true) then return true end
+    if t ~= orig then
+        lbl.Text = t
+        return true  -- changed
     end
     return false
 end
 
--- Watch for Rivals GUIs appearing (they load dynamically)
-lpgui.ChildAdded:Connect(function(child)
-    if child:IsA("ScreenGui") or child:IsA("Frame") then
-        task.wait(0.1)
-        pcall(scanTree, child)
+local function hookLabel(obj)
+    if hooked[obj] then return end
+    if not (obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox")) then return end
+    hooked[obj] = true
+
+    local busy = false
+    local function patch()
+        if busy then return end
+        busy = true
+        local changed = pcall(applySpoof, obj)
+        cached[obj] = true   -- always keep in cache; Rivals may overwrite
+        busy = false
+    end
+
+    patch()
+    obj:GetPropertyChangedSignal("Text"):Connect(patch)
+end
+
+local function scanTree(root)
+    task.spawn(function()
+        local d = root:GetDescendants()
+        for i=1,#d do
+            pcall(hookLabel, d[i])
+            if i%60==0 then task.wait() end   -- yield every 60 so no frame spikes
+        end
+    end)
+    root.DescendantAdded:Connect(function(v)
+        task.defer(function() pcall(hookLabel, v) end)  -- defer = next frame, 0 cost now
+    end)
+end
+
+-- 350ms pulse: re-applies to the small cache set Rivals keeps overwriting
+task.spawn(function()
+    while true do
+        task.wait(0.35)
+        for lbl in pairs(cached) do
+            if lbl and lbl.Parent then
+                local busy = false
+                if not busy then
+                    busy=true
+                    pcall(applySpoof, lbl)
+                    busy=false
+                end
+            else
+                cached[lbl] = nil
+            end
+        end
     end
 end)
 
--- Extra: watch game.Players for other player name spoofing in kill feed
-Players.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Connect(function(char)
-        task.wait(0.5)
-        -- Disable their overhead nametag if we want clean look
-    end)
+-- Initial scans
+task.spawn(function()
+    task.wait(1.5)
+    scanTree(lpg)
+    pcall(scanTree, CG)
 end)
 
--- ┌─────────────────────────────────────────────────────┐
---   CUSTOM LEADERBOARD
--- └─────────────────────────────────────────────────────┘
-local LDB_GUI, LDB_LIST
+lpg.ChildAdded:Connect(function(c)
+    task.wait(0.08)
+    pcall(scanTree, c)
+end)
 
-local function disableVanillaLDB()
-    for _ = 1, 10 do
-        local ok = pcall(function()
-            StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
+lp.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    pcall(scanTree, CG)
+end)
+
+-- ═══════════════════════════════════════════════════
+--  RIVALS STREAK BILLBOARD PATCH
+--  Rivals renders a BillboardGui on each player head
+--  showing their win streak. We intercept it and force
+--  our fake value without adding our own billboard.
+-- ═══════════════════════════════════════════════════
+local function patchRivalsBillboards(char)
+    if not char then return end
+
+    local function tryPatch(v)
+        if not (v:IsA("BillboardGui") or v:IsA("SurfaceGui")) then return end
+        -- Scan all TextLabels inside the billboard
+        for _, lbl in ipairs(v:GetDescendants()) do
+            if lbl:IsA("TextLabel") then
+                hookLabel(lbl)
+                -- Force-set if it looks like a streak number
+                if CFG.SpoofStreak and lbl.Text:match("^%d+$") then
+                    lbl.Text = tostring(CFG.FakeStreak)
+                end
+            end
+        end
+        v.DescendantAdded:Connect(function(d)
+            task.defer(function()
+                if d:IsA("TextLabel") then hookLabel(d) end
+            end)
+        end)
+    end
+
+    -- Patch existing
+    for _,v in ipairs(char:GetDescendants()) do
+        pcall(tryPatch, v)
+    end
+    -- Patch new ones Rivals spawns later
+    char.DescendantAdded:Connect(function(v)
+        task.defer(function() pcall(tryPatch, v) end)
+    end)
+end
+
+if lp.Character then
+    task.spawn(function() patchRivalsBillboards(lp.Character) end)
+end
+lp.CharacterAdded:Connect(function(c)
+    task.wait(0.3)
+    patchRivalsBillboards(c)
+end)
+
+-- ═══════════════════════════════════════════════════
+--  CUSTOM LEADERBOARD
+-- ═══════════════════════════════════════════════════
+local LDB_GUI, LDB_LIST, ldbOpen = nil, nil, false
+
+local function killLDB()
+    local ok = false
+    for _=1,12 do
+        ok = pcall(function()
+            SG:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
         end)
         if ok then break end
-        task.wait(0.15)
+        task.wait(0.1)
     end
 end
 
 local function buildLDB()
     if LDB_GUI then LDB_GUI:Destroy() end
-    local th = T
-
     LDB_GUI = new("ScreenGui",{
-        Name="AnoLDB", ResetOnSpawn=false, DisplayOrder=55, Enabled=false
-    }, lpgui)
+        Name="AnoLDB",ResetOnSpawn=false,DisplayOrder=55,Enabled=false
+    },lpg)
 
     local panel = new("Frame",{
-        Size=UDim2.new(0,310,0,400),
-        Position=UDim2.new(1,-326,0,56),
-        BackgroundColor3=th.Root,
-        BackgroundTransparency=0.04,
+        Size=UDim2.new(0,308,0,420),
+        Position=UDim2.new(1,-322,0,58),
+        BackgroundColor3=T.Win,
         BorderSizePixel=0,
-    }, LDB_GUI)
-    corner(12, panel)
-    stroke(th.Accent, 1, 0.55, panel)
-    new("UIDropShadowEffect",{ShadowColor=Color3.new(0,0,0),ShadowTransparency=0.65,BlurRadius=20}, panel)
+    },LDB_GUI)
+    cor(12,panel)
+    str(T.Bdr,1.2,0,panel)
 
-    local header = new("Frame",{
-        Size=UDim2.new(1,0,0,40),
-        BackgroundColor3=th.Sidebar,
-        BorderSizePixel=0,
-    }, panel)
-    corner(12, header)
-    -- bottom corners flat
+    -- header
+    local hdr = new("Frame",{
+        Size=UDim2.new(1,0,0,42),
+        BackgroundColor3=T.Side,BorderSizePixel=0,
+    },panel)
+    cor(12,hdr)
     new("Frame",{Size=UDim2.new(1,0,0,12),Position=UDim2.new(0,0,1,-12),
-        BackgroundColor3=th.Sidebar,BorderSizePixel=0}, header)
-
+        BackgroundColor3=T.Side,BorderSizePixel=0},hdr)
+    local bar = new("Frame",{
+        Size=UDim2.new(0,3,0,18),Position=UDim2.new(0,12,0.5,-9),
+        BackgroundColor3=T.Acc,BorderSizePixel=0,
+    },hdr)
+    cor(2,bar)
     new("TextLabel",{
-        Size=UDim2.new(1,-16,1,0), Position=UDim2.new(0,12,0,0),
-        BackgroundTransparency=1, Text="Leaderboard",
-        Font=Enum.Font.GothamBold, TextSize=13, TextColor3=th.TextPri,
-        TextXAlignment=Enum.TextXAlignment.Left,
-    }, header)
-
-    local accentLine = new("Frame",{
-        Size=UDim2.new(0,3,0,20),Position=UDim2.new(0,0,0.5,-10),
-        BackgroundColor3=th.Accent, BorderSizePixel=0,
-    }, header)
-    corner(2, accentLine)
+        Size=UDim2.new(1,-24,1,0),Position=UDim2.new(0,20,0,0),
+        BackgroundTransparency=1,Text="Leaderboard",
+        Font=Enum.Font.GothamBold,TextSize=13,
+        TextColor3=T.TxtP,TextXAlignment=Enum.TextXAlignment.Left,
+    },hdr)
 
     LDB_LIST = new("ScrollingFrame",{
-        Size=UDim2.new(1,-16,1,-52),
-        Position=UDim2.new(0,8,0,44),
-        BackgroundTransparency=1,
-        BorderSizePixel=0,
+        Size=UDim2.new(1,-16,1,-54),
+        Position=UDim2.new(0,8,0,46),
+        BackgroundTransparency=1,BorderSizePixel=0,
         ScrollBarThickness=2,
-        ScrollBarImageColor3=th.Accent,
+        ScrollBarImageColor3=T.Acc,
         CanvasSize=UDim2.new(0,0,0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.Y,
-    }, panel)
-    new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,3)}, LDB_LIST)
+    },panel)
+    new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,3)},LDB_LIST)
 end
 
 local function refreshLDB()
@@ -447,265 +456,189 @@ local function refreshLDB()
     for _,c in ipairs(LDB_LIST:GetChildren()) do
         if not c:IsA("UIListLayout") then c:Destroy() end
     end
-    local plrs = Players:GetPlayers()
-    table.sort(plrs, function(a,b)
-        local ak,bk = 0,0
-        pcall(function() ak = a.leaderstats.Kills.Value end)
-        pcall(function() bk = b.leaderstats.Kills.Value end)
+    local all = Players:GetPlayers()
+    table.sort(all, function(a,b)
+        local ak,bk=0,0
+        pcall(function() ak=a.leaderstats.Kills.Value end)
+        pcall(function() bk=b.leaderstats.Kills.Value end)
         return ak>bk
     end)
-    local th = T
-    for i,plr in ipairs(plrs) do
-        local isMe = plr==lp
-        local kills,deaths,streak = 0,0,0
-        pcall(function() kills=plr.leaderstats.Kills.Value end)
-        pcall(function() deaths=plr.leaderstats.Deaths.Value end)
-        if isMe then
-            if CFG.SpoofKills  then kills  = CFG.FakeKills  end
-            if CFG.SpoofDeaths then deaths = CFG.FakeDeaths end
-            if CFG.SpoofStreak then streak = CFG.FakeStreak end
+    for i,plr in ipairs(all) do
+        local me = plr==lp
+        local k,d,ws = 0,0,0
+        pcall(function() k=plr.leaderstats.Kills.Value end)
+        pcall(function() d=plr.leaderstats.Deaths.Value end)
+        if me then
+            if CFG.SpoofKills  then k=CFG.FakeKills  end
+            if CFG.SpoofDeaths then d=CFG.FakeDeaths end
+            if CFG.SpoofStreak then ws=CFG.FakeStreak end
         end
-        local dname = isMe and spoofDisplay() or plr.DisplayName
+        local dn = me and fakeDisplay() or plr.DisplayName
 
         local row = new("Frame",{
-            Size=UDim2.new(1,0,0,38),
-            BackgroundColor3=isMe and th.Card or th.Content,
-            BackgroundTransparency=isMe and 0 or 0.3,
-            BorderSizePixel=0, LayoutOrder=i,
-        }, LDB_LIST)
-        corner(8, row)
-        if isMe then stroke(th.Accent, 1, 0.4, row) end
-        pad(0,0,8,8, row)
+            Size=UDim2.new(1,0,0,36),
+            BackgroundColor3=me and T.Card or T.Cont,
+            BackgroundTransparency=me and 0 or 0.25,
+            BorderSizePixel=0,LayoutOrder=i,
+        },LDB_LIST)
+        cor(7,row)
+        if me then str(T.Acc,1,0.5,row) end
+        pd(0,0,8,8,row)
 
-        -- Rank #
         new("TextLabel",{
-            Size=UDim2.new(0,24,1,0),
-            BackgroundTransparency=1,
-            Text="#"..i,
-            Font=Enum.Font.GothamBold, TextSize=11,
-            TextColor3=th.Accent,
-        }, row)
-        -- Name
+            Size=UDim2.new(0,22,1,0),BackgroundTransparency=1,
+            Text="#"..i,Font=Enum.Font.GothamBold,TextSize=11,
+            TextColor3=T.Acc,
+        },row)
         new("TextLabel",{
-            Size=UDim2.new(0,130,1,0), Position=UDim2.new(0,28,0,0),
-            BackgroundTransparency=1,
-            Text=dname,
-            Font=isMe and Enum.Font.GothamBold or Enum.Font.Gotham,
-            TextSize=12, TextColor3=isMe and th.Accent or th.TextPri,
+            Size=UDim2.new(0,130,1,0),Position=UDim2.new(0,26,0,0),
+            BackgroundTransparency=1,Text=dn,
+            Font=me and Enum.Font.GothamBold or Enum.Font.Gotham,
+            TextSize=12,TextColor3=me and T.Acc or T.TxtP,
             TextXAlignment=Enum.TextXAlignment.Left,
             TextTruncate=Enum.TextTruncate.AtEnd,
-        }, row)
-        -- Stats
+        },row)
         new("TextLabel",{
-            Size=UDim2.new(0,112,1,0), Position=UDim2.new(0,162,0,0),
+            Size=UDim2.new(0,108,1,0),Position=UDim2.new(0,158,0,0),
             BackgroundTransparency=1,
-            Text=kills.."K  "..deaths.."D  "..streak.."WS",
-            Font=Enum.Font.Gotham, TextSize=11,
-            TextColor3=th.TextSec,
-            TextXAlignment=Enum.TextXAlignment.Right,
-        }, row)
+            Text=k.."K  "..d.."D  "..ws.."WS",
+            Font=Enum.Font.Gotham,TextSize=11,
+            TextColor3=T.TxtS,TextXAlignment=Enum.TextXAlignment.Right,
+        },row)
     end
 end
 
--- ┌─────────────────────────────────────────────────────┐
---   BILLBOARD  (win streak + spoof name above head)
--- └─────────────────────────────────────────────────────┘
-local activeBillboard
+task.spawn(function()
+    while true do
+        task.wait(3)
+        if ldbOpen and LDB_GUI then refreshLDB() end
+    end
+end)
 
-local function applyBillboard(char)
-    if activeBillboard then activeBillboard:Destroy() activeBillboard=nil end
-    if not CFG.ShowOnBillboard then return end
-    local head = char:WaitForChild("Head", 4)
-    if not head then return end
-
-    local bb = new("BillboardGui",{
-        Name="AnoBB", Adornee=head,
-        Size=UDim2.new(0,160,0,42),
-        StudsOffset=Vector3.new(0,2.6,0),
-        AlwaysOnTop=false, ResetOnSpawn=false,
-    }, head)
-    activeBillboard = bb
-
-    local nameLbl = new("TextLabel",{
-        Size=UDim2.new(1,0,0.56,0),
-        BackgroundTransparency=1,
-        Text=spoofDisplay(),
-        Font=Enum.Font.GothamBold, TextSize=14,
-        TextColor3=T.Accent,
-        TextStrokeTransparency=0.4, TextStrokeColor3=Color3.new(0,0,0),
-    }, bb)
-
-    local wsLbl = new("TextLabel",{
-        Size=UDim2.new(1,0,0.44,0), Position=UDim2.new(0,0,0.56,0),
-        BackgroundTransparency=1,
-        Text=CFG.SpoofStreak and (CFG.FakeStreak.." Streak") or "",
-        Font=Enum.Font.Gotham, TextSize=12,
-        TextColor3=Color3.fromRGB(255,210,70),
-        TextStrokeTransparency=0.5, TextStrokeColor3=Color3.new(0,0,0),
-    }, bb)
-
-    -- Lightweight rainbow update (only if enabled, low rate)
-    local conn
-    conn = RunService.Heartbeat:Connect(function()
-        if not bb or not bb.Parent then conn:Disconnect() return end
-        if CFG.WMRainbow then
-            nameLbl.TextColor3 = hsvCycle(tick()*0.25)
-        else
-            nameLbl.TextColor3 = T.Accent
-        end
-        nameLbl.Text = spoofDisplay()
-        wsLbl.Text = CFG.SpoofStreak and (CFG.FakeStreak.." Streak") or ""
-    end)
-end
-
-lp.CharacterAdded:Connect(function(c) task.wait(0.3) applyBillboard(c) end)
-if lp.Character then task.spawn(function() applyBillboard(lp.Character) end) end
-
--- ┌─────────────────────────────────────────────────────┐
---   KILL FEED STYLES
--- └─────────────────────────────────────────────────────┘
+-- ═══════════════════════════════════════════════════
+--  KILL FEED OVERLAY
+-- ═══════════════════════════════════════════════════
+local KF_GUI, KF_FRAME
 local KF_STYLES = {
     Clean   = function(k,w,v) return k.." killed "..v.." ["..w.."]" end,
-    Arrow   = function(k,w,v) return k.." -> "..v.." ("..w..")" end,
-    Bracket = function(k,w,v) return "["..k.."] ["..w.."] ["..v.."]" end,
+    Arrow   = function(k,w,v) return k.." > "..v.." ("..w..")" end,
+    Bracket = function(k,w,v) return "["..k.."]["..w.."]["..v.."]" end,
     Hacker  = function(k,w,v) return ">>"..k.."<<"..w..">>"..v.."<<" end,
     Minimal = function(k,w,v) return k.." + "..v end,
 }
 
-local KF_GUI, KF_FRAME
-
-local function buildKFGui()
+local function buildKF()
     if KF_GUI then KF_GUI:Destroy() end
-    KF_GUI = new("ScreenGui",{
-        Name="AnoKF", ResetOnSpawn=false, DisplayOrder=58
-    }, lpgui)
+    KF_GUI = new("ScreenGui",{Name="AnoKF",ResetOnSpawn=false,DisplayOrder=56},lpg)
     KF_FRAME = new("Frame",{
-        Size=UDim2.new(0,340,0,190),
-        Position=UDim2.new(1,-358,0,106),
-        BackgroundTransparency=1, BorderSizePixel=0,
-    }, KF_GUI)
-    local ll = new("UIListLayout",{
+        Size=UDim2.new(0,340,0,200),
+        Position=UDim2.new(1,-356,0,110),
+        BackgroundTransparency=1,BorderSizePixel=0,
+    },KF_GUI)
+    new("UIListLayout",{
         SortOrder=Enum.SortOrder.LayoutOrder,
         VerticalAlignment=Enum.VerticalAlignment.Bottom,
         Padding=UDim.new(0,3),
-    }, KF_FRAME)
+    },KF_FRAME)
 end
 
-local kfOrder = 0
-local function pushKF(killer, weapon, victim)
+local kfIdx=0
+local function pushKF(k,w,v)
     if not KF_FRAME then return end
-    kfOrder += 1
+    kfIdx+=1
     local fn = KF_STYLES[CFG.KFStyle] or KF_STYLES.Clean
-    local txt = fn(killer, weapon, victim)
-
     local entry = new("Frame",{
-        Size=UDim2.new(1,0,0,28),
+        Size=UDim2.new(1,0,0,26),
         BackgroundColor3=Color3.fromRGB(0,0,0),
         BackgroundTransparency=0.45,
-        BorderSizePixel=0, LayoutOrder=kfOrder,
-    }, KF_FRAME)
-    corner(6, entry)
-
+        BorderSizePixel=0,LayoutOrder=kfIdx,
+    },KF_FRAME)
+    cor(6,entry)
     new("TextLabel",{
-        Size=UDim2.new(1,-12,1,0), Position=UDim2.new(0,6,0,0),
-        BackgroundTransparency=1, Text=txt,
-        Font=Enum.Font.GothamBold, TextSize=12,
-        TextColor3=T.Accent,
+        Size=UDim2.new(1,-12,1,0),Position=UDim2.new(0,6,0,0),
+        BackgroundTransparency=1,
+        Text=fn(k,w,v),
+        Font=Enum.Font.GothamBold,TextSize=12,
+        TextColor3=T.Acc,
         TextXAlignment=Enum.TextXAlignment.Right,
-    }, entry)
-
-    task.delay(3.5, function()
+    },entry)
+    task.delay(4,function()
         if not entry.Parent then return end
-        tw(entry, TI_MED, {BackgroundTransparency=1})
+        tw(entry,TI_M,{BackgroundTransparency=1})
         for _,c in ipairs(entry:GetChildren()) do
-            if c:IsA("TextLabel") then tw(c, TI_MED, {TextTransparency=1}) end
+            if c:IsA("TextLabel") then tw(c,TI_M,{TextTransparency=1}) end
         end
-        task.wait(0.5)
+        task.wait(0.4)
         if entry.Parent then entry:Destroy() end
     end)
 end
 
--- ┌─────────────────────────────────────────────────────┐
---   WATERMARK  (updates every 1s — not per-frame)
--- └─────────────────────────────────────────────────────┘
+-- ═══════════════════════════════════════════════════
+--  WATERMARK  (1s loop)
+-- ═══════════════════════════════════════════════════
 local WM_GUI, WM_MAIN, WM_SUB
 
-local function buildWatermark()
+local function buildWM()
     if WM_GUI then WM_GUI:Destroy() end
-    local th = T
-
     WM_GUI = new("ScreenGui",{
-        Name="AnoWM", ResetOnSpawn=false, DisplayOrder=100,
-        Enabled=CFG.WMEnabled,
-    }, lpgui)
+        Name="AnoWM",ResetOnSpawn=false,
+        DisplayOrder=100,Enabled=CFG.WMEnabled,
+    },lpg)
 
-    local frame = new("Frame",{
+    local f = new("Frame",{
         Position=UDim2.new(0,12,0,12),
-        Size=UDim2.new(0,14,0,44),
+        Size=UDim2.new(0,12,0,42),
         AutomaticSize=Enum.AutomaticSize.X,
-        BackgroundColor3=th.Watermark,
-        BackgroundTransparency=0.06,
-        BorderSizePixel=0,
-    }, WM_GUI)
-    corner(10, frame)
-    stroke(th.Accent, 1, 0.5, frame)
-    pad(8,8,12,14, frame)
+        BackgroundColor3=T.WM,
+        BackgroundTransparency=0.06,BorderSizePixel=0,
+    },WM_GUI)
+    cor(10,f)
+    str(T.Acc,1,0.5,f)
+    pd(7,7,12,14,f)
 
-    local stack = new("Frame",{
-        Size=UDim2.new(0,1,1,0),
-        AutomaticSize=Enum.AutomaticSize.XY,
+    local vl = new("Frame",{
+        Size=UDim2.new(0,1,1,0),AutomaticSize=Enum.AutomaticSize.XY,
         BackgroundTransparency=1,
-    }, frame)
+    },f)
     new("UIListLayout",{
         SortOrder=Enum.SortOrder.LayoutOrder,
         FillDirection=Enum.FillDirection.Vertical,
         Padding=UDim.new(0,2),
-    }, stack)
+    },vl)
 
     WM_MAIN = new("TextLabel",{
-        Size=UDim2.new(0,1,0,18),
-        AutomaticSize=Enum.AutomaticSize.X,
-        BackgroundTransparency=1,
-        Text=CFG.WMText,
-        Font=Enum.Font.GothamBold, TextSize=CFG.WMSize,
-        TextColor3=th.Accent,
-        TextXAlignment=Enum.TextXAlignment.Left,
+        Size=UDim2.new(0,1,0,18),AutomaticSize=Enum.AutomaticSize.X,
+        BackgroundTransparency=1,Text=CFG.WMText,
+        Font=Enum.Font.GothamBold,TextSize=CFG.WMSize,
+        TextColor3=T.Acc,TextXAlignment=Enum.TextXAlignment.Left,
         LayoutOrder=1,
-    }, stack)
-
+    },vl)
     WM_SUB = new("TextLabel",{
-        Size=UDim2.new(0,1,0,14),
-        AutomaticSize=Enum.AutomaticSize.X,
-        BackgroundTransparency=1,
-        Text="",
-        Font=Enum.Font.Gotham, TextSize=11,
-        TextColor3=th.TextSec,
-        TextXAlignment=Enum.TextXAlignment.Left,
+        Size=UDim2.new(0,1,0,14),AutomaticSize=Enum.AutomaticSize.X,
+        BackgroundTransparency=1,Text="",
+        Font=Enum.Font.Gotham,TextSize=11,
+        TextColor3=T.TxtS,TextXAlignment=Enum.TextXAlignment.Left,
         LayoutOrder=2,
-    }, stack)
+    },vl)
 end
 
--- 1s loop — very light
 task.spawn(function()
+    local lastFPS = 60
     while true do
         task.wait(1)
         if WM_GUI and WM_GUI.Enabled then
             if WM_MAIN then
                 WM_MAIN.Text = CFG.WMText
-                if CFG.WMRainbow then
-                    WM_MAIN.TextColor3 = hsvCycle(tick()*0.2)
-                else
-                    WM_MAIN.TextColor3 = T.Accent
-                end
+                WM_MAIN.TextSize = CFG.WMSize
+                WM_MAIN.TextColor3 = CFG.WMRainbow and hsvC(tick()*0.2) or T.Acc
             end
             if WM_SUB then
                 if CFG.WMSubAuto then
-                    local fps = math.floor(1/math.max(RunService.Heartbeat:Wait(),0.001))
                     WM_SUB.Text = string.format(
                         "%s   %dms   %dfps   %s",
-                        spoofName(),
+                        fakeName(),
                         CFG.SpoofPing and CFG.FakePing or 0,
-                        CFG.SpoofFPS  and CFG.FakeFPS  or fps,
+                        CFG.SpoofFPS and CFG.FakeFPS or lastFPS,
                         CFG.SpoofRegion and CFG.FakeRegion or "?"
                     )
                 else
@@ -713,979 +646,786 @@ task.spawn(function()
                 end
             end
         end
+        -- lightweight fps sample
+        local t0=tick()
+        RunService.Heartbeat:Wait()
+        lastFPS = math.floor(1/math.max(tick()-t0,0.001))
     end
 end)
 
--- ┌─────────────────────────────────────────────────────┐
---   EXTRA FEATURES
--- └─────────────────────────────────────────────────────┘
-local extraConnections = {}
-
-local function stopExtra(key)
-    if extraConnections[key] then
-        pcall(function() extraConnections[key]:Disconnect() end)
-        extraConnections[key] = nil
-    end
+-- ═══════════════════════════════════════════════════
+--  EXTRAS
+-- ═══════════════════════════════════════════════════
+local xConns = {}
+local function xStop(k)
+    if xConns[k] then pcall(function() xConns[k]:Disconnect() end); xConns[k]=nil end
 end
 
 local function startInfJump()
-    stopExtra("infJump")
-    extraConnections["infJump"] = UIS.JumpRequest:Connect(function()
-        if not CFG.InfJump then stopExtra("infJump") return end
-        local c = lp.Character
+    xStop("ij")
+    xConns["ij"] = UIS.JumpRequest:Connect(function()
+        if not CFG.InfJump then xStop("ij") return end
+        local c=lp.Character
         if c then
-            local h = c:FindFirstChildWhichIsA("Humanoid")
+            local h=c:FindFirstChildWhichIsA("Humanoid")
             if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
         end
     end)
 end
 
-local noclipConn
+local ncConn
 local function startNoclip()
-    if noclipConn then noclipConn:Disconnect() end
-    noclipConn = RunService.Stepped:Connect(function()
-        if not CFG.Noclip then noclipConn:Disconnect() return end
-        local c = lp.Character
+    if ncConn then ncConn:Disconnect() end
+    ncConn = RunService.Stepped:Connect(function()
+        if not CFG.Noclip then ncConn:Disconnect() return end
+        local c=lp.Character
         if c then
-            for _, v in ipairs(c:GetDescendants()) do
-                if v:IsA("BasePart") then v.CanCollide = false end
+            for _,v in ipairs(c:GetDescendants()) do
+                if v:IsA("BasePart") then v.CanCollide=false end
             end
         end
     end)
 end
 
-local afkThread
-local function startFakeAFK()
-    if afkThread then task.cancel(afkThread) end
-    afkThread = task.spawn(function()
+local afkTh
+local function startAFK()
+    if afkTh then task.cancel(afkTh) end
+    afkTh = task.spawn(function()
         while CFG.FakeAFK do
             task.wait(55)
-            local c = lp.Character
+            local c=lp.Character
             if c then
-                local hrp = c:FindFirstChild("HumanoidRootPart")
-                if hrp then hrp.CFrame = hrp.CFrame * CFrame.new(0.001,0,0) end
+                local hrp=c:FindFirstChild("HumanoidRootPart")
+                if hrp then hrp.CFrame=hrp.CFrame*CFrame.new(0.001,0,0) end
             end
         end
     end)
 end
 
--- Name cycling thread
-local cycleThread
-local cycleIdx = 1
-local function startNameCycle()
-    if cycleThread then task.cancel(cycleThread) end
-    cycleThread = task.spawn(function()
-        while CFG.CycleNames do
-            task.wait(CFG.CycleInterval)
-            cycleIdx = (cycleIdx % #CFG.CycleList) + 1
-            -- Rotate so spoofName() picks first
-            local rotated = {}
-            for i = cycleIdx, #CFG.CycleList do rotated[#rotated+1]=CFG.CycleList[i] end
-            for i = 1, cycleIdx-1 do rotated[#rotated+1]=CFG.CycleList[i] end
-            CFG.CycleList = rotated
-        end
-    end)
-end
+-- ═══════════════════════════════════════════════════
+--  MAIN UI
+--  710×480, sidebar 52px collapsed / 188px expanded,
+--  no X button, dark/light theme, Fantasy "A" logo.
+-- ═══════════════════════════════════════════════════
+local MAIN_GUI, menuOpen = nil, true
 
--- ┌─────────────────────────────────────────────────────┐
---   MAIN UI
---   Sidebar: 52px collapsed, 186px expanded on hover
---   No X button. Professional dark/light theme.
--- └─────────────────────────────────────────────────────┘
-local MAIN_GUI
-local menuOpen = true
+local SB_C = 54       -- sidebar collapsed width
+local SB_E = 188      -- sidebar expanded width
 
--- Sidebar dimensions
-local SB_W_COL = 54
-local SB_W_EXP = 188
-local CONTENT_X_COL = SB_W_COL + 1
-local CONTENT_X_EXP = SB_W_EXP + 1
-
--- Tab registry
-local TAB_DATA = {
-    {id="identity", icon="rbxassetid://14671146577",  label="Identity"},
-    {id="stats",    icon="rbxassetid://14484108059",  label="Stats"},
-    {id="status",   icon="rbxassetid://14508492012",  label="Status"},
-    {id="killfeed", icon="rbxassetid://14510951736",  label="Kill Feed"},
-    {id="skins",    icon="rbxassetid://14484110001",  label="Skins"},
-    {id="watermark",icon="rbxassetid://14484106924",  label="Watermark"},
-    {id="extra",    icon="rbxassetid://14484105428",  label="Extra"},
-    {id="config",   icon="rbxassetid://14484104516",  label="Config"},
+local TABS = {
+    {id="identity", icon="🆔", lbl="Identity"},
+    {id="stats",    icon="📊", lbl="Stats"},
+    {id="status",   icon="🏅", lbl="Status"},
+    {id="killfeed", icon="💀", lbl="Kill Feed"},
+    {id="skins",    icon="🎨", lbl="Skins"},
+    {id="watermark",icon="🔖", lbl="Watermark"},
+    {id="extra",    icon="⚡", lbl="Extra"},
+    {id="config",   icon="⚙", lbl="Config"},
 }
-local tabFrames   = {}
-local tabBtns     = {}
-local activeTab   = "identity"
 
--- Re-theming references
-local themeRefs = {}  -- list of {inst, prop, themeKey}
-local function regTheme(inst, prop, themeKey)
-    themeRefs[#themeRefs+1] = {inst=inst, prop=prop, key=themeKey}
-end
+local tabFrames = {}
+local tabBtns   = {}
+local activeTab = "identity"
+
+-- Theme-registered instances for live re-theme
+local themeR = {}   -- {inst, prop, key}
+local function reg(i,p,k) themeR[#themeR+1]={i=i,p=p,k=k} end
 local function applyTheme()
-    refreshTheme()
-    for _,r in ipairs(themeRefs) do
-        if r.inst and r.inst.Parent then
-            r.inst[r.prop] = T[r.key]
-        end
+    rt()
+    for _,r in ipairs(themeR) do
+        if r.i and r.i.Parent then r.i[r.p]=T[r.k] end
     end
 end
 
 local function buildUI()
     if MAIN_GUI then MAIN_GUI:Destroy() end
-    themeRefs = {}
-
-    local th = T
+    tabFrames,tabBtns,themeR = {},{},{}
+    activeTab = "identity"
 
     MAIN_GUI = new("ScreenGui",{
-        Name="AnoMain", ResetOnSpawn=false,
+        Name="AnoMain",ResetOnSpawn=false,
         ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
-        DisplayOrder=200, Enabled=menuOpen,
-    }, lpgui)
+        DisplayOrder=200,Enabled=menuOpen,
+    },lpg)
 
-    -- ── ROOT ─────────────────────────────────────────────
+    -- ── ROOT ─────────────────────────────────────────
     local root = new("Frame",{
         Name="Root",
-        Size=UDim2.new(0,710,0,480),
-        Position=UDim2.new(0.5,-355,0.5,-240),
-        BackgroundColor3=th.Root,
-        BorderSizePixel=0, ClipsDescendants=false,
-    }, MAIN_GUI)
-    corner(14, root)
-    local rootStroke = stroke(th.Border, 1.2, 0, root)
-    regTheme(root,"BackgroundColor3","Root")
-    regTheme(rootStroke,"Color","Border")
+        Size=UDim2.new(0,710,0,478),
+        Position=UDim2.new(0.5,-355,0.5,-239),
+        BackgroundColor3=T.Win,BorderSizePixel=0,
+        ClipsDescendants=false,
+    },MAIN_GUI)
+    cor(14,root)
+    local rStr = str(T.Bdr,1.2,0,root)
+    reg(root,"BackgroundColor3","Win")
+    reg(rStr,"Color","Bdr")
 
-    -- Subtle inner clip frame (prevents overflow)
-    local clipInner = new("Frame",{
-        Size=UDim2.new(1,0,1,0),
-        BackgroundTransparency=1,
+    -- inner clip (rounded corners mask content)
+    local clip = new("Frame",{
+        Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,
         ClipsDescendants=true,
-    }, root)
-    corner(14, clipInner)
+    },root)
+    cor(14,clip)
 
-    -- Drop shadow (image-based, no lag)
+    -- shadow (image-based, zero perf cost)
     new("ImageLabel",{
-        Size=UDim2.new(1,40,1,40),
-        Position=UDim2.new(0,-20,0,-20),
+        Size=UDim2.new(1,44,1,44),Position=UDim2.new(0,-22,0,-22),
         BackgroundTransparency=1,
-        Image="rbxassetid://5554236805",
+        Image="rbxassetid://6014261993",
         ImageColor3=Color3.new(0,0,0),
-        ImageTransparency=0.55,
-        ZIndex=-1, ScaleType=Enum.ScaleType.Slice,
-        SliceCenter=Rect.new(23,23,277,277),
-    }, root)
+        ImageTransparency=0.5,
+        ZIndex=0,ScaleType=Enum.ScaleType.Slice,
+        SliceCenter=Rect.new(49,49,450,450),
+    },root)
 
-    -- ── DRAG ─────────────────────────────────────────────
+    -- ── DRAG ─────────────────────────────────────────
     do
-        local dragging, dStart, rStart = false, nil, nil
-        root.InputBegan:Connect(function(inp)
-            if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging=true; dStart=inp.Position; rStart=root.Position
+        local drag,ds,rs=false,nil,nil
+        root.InputBegan:Connect(function(i)
+            if i.UserInputType==Enum.UserInputType.MouseButton1 then
+                drag=true;ds=i.Position;rs=root.Position
             end
         end)
-        UIS.InputChanged:Connect(function(inp)
-            if dragging and inp.UserInputType==Enum.UserInputType.MouseMovement then
-                local d = inp.Position - dStart
-                root.Position = UDim2.new(
-                    rStart.X.Scale, rStart.X.Offset+d.X,
-                    rStart.Y.Scale, rStart.Y.Offset+d.Y
-                )
+        UIS.InputChanged:Connect(function(i)
+            if drag and i.UserInputType==Enum.UserInputType.MouseMovement then
+                local d=i.Position-ds
+                root.Position=UDim2.new(rs.X.Scale,rs.X.Offset+d.X,rs.Y.Scale,rs.Y.Offset+d.Y)
             end
         end)
-        UIS.InputEnded:Connect(function(inp)
-            if inp.UserInputType==Enum.UserInputType.MouseButton1 then dragging=false end
+        UIS.InputEnded:Connect(function(i)
+            if i.UserInputType==Enum.UserInputType.MouseButton1 then drag=false end
         end)
     end
 
-    -- ── SIDEBAR ───────────────────────────────────────────
-    local sidebar = new("Frame",{
+    -- ── SIDEBAR ──────────────────────────────────────
+    local sb = new("Frame",{
         Name="Sidebar",
-        Size=UDim2.new(0,SB_W_COL,1,0),
-        BackgroundColor3=th.Sidebar,
-        BorderSizePixel=0,
-    }, clipInner)
-    corner(14, sidebar)
-    -- Flatten right side
-    new("Frame",{
-        Size=UDim2.new(0,14,1,0), Position=UDim2.new(1,-14,0,0),
-        BackgroundColor3=th.Sidebar, BorderSizePixel=0,
-    }, sidebar)
-    regTheme(sidebar,"BackgroundColor3","Sidebar")
+        Size=UDim2.new(0,SB_C,1,0),
+        BackgroundColor3=T.Side,BorderSizePixel=0,
+    },clip)
+    cor(14,sb)
+    -- flatten right side corners
+    new("Frame",{Size=UDim2.new(0,14,1,0),Position=UDim2.new(1,-14,0,0),
+        BackgroundColor3=T.Side,BorderSizePixel=0},sb)
+    -- thin right border
+    local sbSep = new("Frame",{
+        Size=UDim2.new(0,1,1,0),Position=UDim2.new(1,-1,0,0),
+        BackgroundColor3=T.Bdr,BorderSizePixel=0,
+    },sb)
+    reg(sb,"BackgroundColor3","Side")
+    reg(sbSep,"BackgroundColor3","Bdr")
 
-    -- Thin separator
-    local sep = new("Frame",{
-        Size=UDim2.new(0,1,1,0),
-        Position=UDim2.new(1,-1,0,0),
-        BackgroundColor3=th.Border,
-        BorderSizePixel=0,
-    }, sidebar)
-    regTheme(sep,"BackgroundColor3","Border")
-
-    -- ── LOGO ─────────────────────────────────────────────
-    local logoBtn = new("TextButton",{
-        Name="LogoArea",
-        Size=UDim2.new(1,0,0,54),
-        BackgroundTransparency=1,
-        Text="",
-        BorderSizePixel=0,
-    }, sidebar)
-
-    -- "A" glyph (fantasy font — renders properly)
+    -- ── LOGO ─────────────────────────────────────────
     local logoA = new("TextLabel",{
-        Size=UDim2.new(0,SB_W_COL,1,0),
+        Size=UDim2.new(0,SB_C,0,54),
         BackgroundTransparency=1,
         Text="A",
-        Font=Enum.Font.Fantasy,
-        TextSize=28,
-        TextColor3=th.Logo,
+        Font=Enum.Font.Fantasy,TextSize=30,
+        TextColor3=T.Logo,
         TextXAlignment=Enum.TextXAlignment.Center,
-    }, logoBtn)
-    regTheme(logoA,"TextColor3","Logo")
+    },sb)
+    reg(logoA,"TextColor3","Logo")
 
-    -- "anomia" label that fades in when expanded
-    local logoText = new("TextLabel",{
-        Size=UDim2.new(1,-(SB_W_COL+4),1,0),
-        Position=UDim2.new(0,SB_W_COL,0,0),
+    local logoName = new("TextLabel",{
+        Size=UDim2.new(1,-SB_C,0,54),
+        Position=UDim2.new(0,SB_C+2,0,0),
         BackgroundTransparency=1,
         Text="anomia",
-        Font=Enum.Font.GothamBold,
-        TextSize=16, TextColor3=th.TextPri,
-        TextTransparency=1,
+        Font=Enum.Font.GothamBold,TextSize=16,
+        TextColor3=T.TxtP,TextTransparency=1,
         TextXAlignment=Enum.TextXAlignment.Left,
-    }, logoBtn)
-    regTheme(logoText,"TextColor3","TextPri")
+    },sb)
+    reg(logoName,"TextColor3","TxtP")
 
-    -- Logo accent dot
-    new("Frame",{
+    -- accent dot under A
+    local logoDot = new("Frame",{
         Size=UDim2.new(0,4,0,4),
-        Position=UDim2.new(0,SB_W_COL/2-2,1,-8),
-        BackgroundColor3=th.Accent,
-        BorderSizePixel=0,
-    }, logoBtn)
+        Position=UDim2.new(0,SB_C/2-2,0,46),
+        BackgroundColor3=T.Acc,BorderSizePixel=0,
+    },sb)
+    cor(3,logoDot)
 
-    -- Divider below logo
-    local logoDivider = new("Frame",{
-        Size=UDim2.new(0.75,0,0,1),
-        Position=UDim2.new(0.125,0,1,-1),
-        BackgroundColor3=th.Border,
-        BorderSizePixel=0,
-    }, logoBtn)
-    regTheme(logoDivider,"BackgroundColor3","Border")
+    -- divider
+    local logoDivF = new("Frame",{
+        Size=UDim2.new(0.7,0,0,1),
+        Position=UDim2.new(0.15,0,0,53),
+        BackgroundColor3=T.Bdr,BorderSizePixel=0,
+    },sb)
+    reg(logoDivF,"BackgroundColor3","Bdr")
 
-    -- ── TAB BUTTONS ──────────────────────────────────────
+    -- ── TAB LIST ─────────────────────────────────────
     local tabList = new("Frame",{
-        Name="TabList",
-        Size=UDim2.new(1,0,1,-60),
-        Position=UDim2.new(0,0,0,60),
+        Size=UDim2.new(1,0,1,-62),
+        Position=UDim2.new(0,0,0,62),
         BackgroundTransparency=1,
-        BorderSizePixel=0,
-    }, sidebar)
-    new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,2)}, tabList)
-    pad(4,4,4,4, tabList)
+    },sb)
+    new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,2)},tabList)
+    pd(4,4,5,5,tabList)
 
-    for i, tabDef in ipairs(TAB_DATA) do
-        local isActive = tabDef.id == activeTab
+    for i,td in ipairs(TABS) do
+        local isA = td.id==activeTab
         local btn = new("TextButton",{
-            Name=tabDef.id,
-            Size=UDim2.new(1,0,0,38),
-            BackgroundColor3=isActive and th.Card or th.Sidebar,
-            BackgroundTransparency=isActive and 0 or 1,
-            Text="", BorderSizePixel=0,
-            LayoutOrder=i,
-        }, tabList)
-        corner(8, btn)
+            Name=td.id,
+            Size=UDim2.new(1,0,0,36),
+            BackgroundColor3=isA and T.Card or T.Side,
+            BackgroundTransparency=isA and 0 or 1,
+            Text="",BorderSizePixel=0,LayoutOrder=i,
+        },tabList)
+        cor(8,btn)
 
-        local activeBar = new("Frame",{
-            Size=UDim2.new(0,3,0,20),
-            Position=UDim2.new(0,0,0.5,-10),
-            BackgroundColor3=th.Accent,
-            BackgroundTransparency=isActive and 0 or 1,
+        local aBar = new("Frame",{
+            Size=UDim2.new(0,3,0,18),
+            Position=UDim2.new(0,0,0.5,-9),
+            BackgroundColor3=T.Acc,
+            BackgroundTransparency=isA and 0 or 1,
             BorderSizePixel=0,
-        }, btn)
-        corner(2, activeBar)
+        },btn)
+        cor(2,aBar)
 
-        -- Icon
-        local icon = new("ImageLabel",{
-            Size=UDim2.new(0,18,0,18),
-            Position=UDim2.new(0,SB_W_COL/2-9,0.5,-9),
+        -- emoji icon (always renders, no image IDs needed)
+        local ico = new("TextLabel",{
+            Size=UDim2.new(0,SB_C,1,0),
             BackgroundTransparency=1,
-            Image=tabDef.icon,
-            ImageColor3=isActive and th.Accent or th.TextSec,
-        }, btn)
+            Text=td.icon,
+            Font=Enum.Font.GothamBold,TextSize=16,
+            TextColor3=isA and T.Acc or T.TxtS,
+            TextXAlignment=Enum.TextXAlignment.Center,
+        },btn)
+        reg(ico,"TextColor3",isA and "Acc" or "TxtS")
 
-        -- Label (invisible by default)
         local lbl = new("TextLabel",{
-            Size=UDim2.new(1,-(SB_W_COL+6),1,0),
-            Position=UDim2.new(0,SB_W_COL,0,0),
+            Size=UDim2.new(1,-SB_C,1,0),
+            Position=UDim2.new(0,SB_C+2,0,0),
             BackgroundTransparency=1,
-            Text=tabDef.label,
-            Font=isActive and Enum.Font.GothamBold or Enum.Font.Gotham,
-            TextSize=12, TextColor3=isActive and th.Accent or th.TextPri,
+            Text=td.lbl,
+            Font=isA and Enum.Font.GothamBold or Enum.Font.Gotham,
+            TextSize=12,TextColor3=isA and T.Acc or T.TxtP,
             TextTransparency=1,
             TextXAlignment=Enum.TextXAlignment.Left,
-        }, btn)
-        regTheme(lbl,"TextColor3",isActive and "Accent" or "TextPri")
+        },btn)
+        reg(lbl,"TextColor3",isA and "Acc" or "TxtP")
 
-        tabBtns[tabDef.id] = {
-            btn=btn, icon=icon, lbl=lbl, bar=activeBar
-        }
+        tabBtns[td.id] = {btn=btn,ico=ico,lbl=lbl,bar=aBar}
 
         btn.MouseEnter:Connect(function()
-            if tabDef.id ~= activeTab then
-                tw(btn, TI_FAST, {BackgroundTransparency=0.7, BackgroundColor3=th.Card})
-                tw(icon, TI_FAST, {ImageColor3=th.TextPri})
+            if td.id~=activeTab then
+                tw(btn,TI_F,{BackgroundTransparency=0.75,BackgroundColor3=T.Card})
             end
         end)
         btn.MouseLeave:Connect(function()
-            if tabDef.id ~= activeTab then
-                tw(btn, TI_FAST, {BackgroundTransparency=1})
-                tw(icon, TI_FAST, {ImageColor3=th.TextSec})
-            end
+            if td.id~=activeTab then tw(btn,TI_F,{BackgroundTransparency=1}) end
         end)
 
         btn.MouseButton1Click:Connect(function()
             local prev = activeTab
-            if prev == tabDef.id then return end
+            if prev==td.id then return end
 
-            -- Deactivate old
-            local oldRefs = tabBtns[prev]
-            if oldRefs then
-                tw(oldRefs.btn,  TI_FAST, {BackgroundTransparency=1})
-                tw(oldRefs.bar,  TI_FAST, {BackgroundTransparency=1})
-                tw(oldRefs.icon, TI_FAST, {ImageColor3=th.TextSec})
-                tw(oldRefs.lbl,  TI_FAST, {TextColor3=th.TextPri, TextTransparency=1})
-                oldRefs.lbl.Font = Enum.Font.Gotham
+            -- deactivate old
+            local old = tabBtns[prev]
+            if old then
+                tw(old.btn,TI_F,{BackgroundTransparency=1})
+                tw(old.bar,TI_F,{BackgroundTransparency=1})
+                tw(old.ico,TI_F,{TextColor3=T.TxtS})
+                tw(old.lbl,TI_F,{TextColor3=T.TxtP,TextTransparency=1})
+                old.lbl.Font=Enum.Font.Gotham
             end
             if tabFrames[prev] then
-                tw(tabFrames[prev], TI_FAST, {BackgroundTransparency=1})
-                task.delay(0.2, function()
-                    if tabFrames[prev] then tabFrames[prev].Visible = false end
-                end)
+                tabFrames[prev].Visible=false
             end
 
-            activeTab = tabDef.id
-            -- Activate new
-            tw(btn,  TI_FAST, {BackgroundTransparency=0, BackgroundColor3=th.Card})
-            tw(activeBar, TI_FAST, {BackgroundTransparency=0})
-            tw(icon, TI_FAST, {ImageColor3=th.Accent})
-            lbl.Font = Enum.Font.GothamBold
-            -- Only show label if sidebar expanded (handled by sidebar hover)
+            activeTab = td.id
+            tw(btn,TI_F,{BackgroundTransparency=0,BackgroundColor3=T.Card})
+            tw(aBar,TI_F,{BackgroundTransparency=0})
+            tw(ico,TI_F,{TextColor3=T.Acc})
+            lbl.Font=Enum.Font.GothamBold
+            -- lbl visibility controlled by sidebar expand state
 
             if tabFrames[activeTab] then
-                tabFrames[activeTab].Visible = true
-                tabFrames[activeTab].BackgroundTransparency = 1
-                tw(tabFrames[activeTab], TI_MED, {BackgroundTransparency=0})
+                tabFrames[activeTab].Visible=true
             end
         end)
     end
 
-    -- ── SIDEBAR HOVER EXPAND ─────────────────────────────
-    local sbExpanded = false
-    local sbHoverTask
+    -- ── SIDEBAR HOVER EXPAND ─────────────────────────
+    local sbExp = false
+    local sbTask
 
-    local function expandSidebar()
-        if sbExpanded then return end
-        sbExpanded = true
-        tw(sidebar, TI_MED, {Size=UDim2.new(0,SB_W_EXP,1,0)})
-        -- Show labels
-        tw(logoText, TI_MED, {TextTransparency=0})
-        for _, td in ipairs(TAB_DATA) do
-            local refs = tabBtns[td.id]
-            if refs then
-                tw(refs.lbl, TI_MED, {TextTransparency=0})
-            end
+    local function expandSB()
+        if sbExp then return end; sbExp=true
+        tw(sb,TI_M,{Size=UDim2.new(0,SB_E,1,0)})
+        tw(logoName,TI_M,{TextTransparency=0})
+        for _,td in ipairs(TABS) do
+            local r=tabBtns[td.id]
+            if r then tw(r.lbl,TI_M,{TextTransparency=0}) end
+        end
+    end
+    local function collapseSB()
+        if not sbExp then return end; sbExp=false
+        tw(sb,TI_M,{Size=UDim2.new(0,SB_C,1,0)})
+        tw(logoName,TI_F,{TextTransparency=1})
+        for _,td in ipairs(TABS) do
+            local r=tabBtns[td.id]
+            if r then tw(r.lbl,TI_F,{TextTransparency=1}) end
         end
     end
 
-    local function collapseSidebar()
-        if not sbExpanded then return end
-        sbExpanded = false
-        tw(sidebar, TI_MED, {Size=UDim2.new(0,SB_W_COL,1,0)})
-        tw(logoText, TI_FAST, {TextTransparency=1})
-        for _, td in ipairs(TAB_DATA) do
-            local refs = tabBtns[td.id]
-            if refs then
-                tw(refs.lbl, TI_FAST, {TextTransparency=1})
-            end
-        end
-    end
-
-    sidebar.MouseEnter:Connect(function()
-        sbHoverTask = task.delay(0.35, expandSidebar)
+    sb.MouseEnter:Connect(function()
+        sbTask = task.delay(0.3, expandSB)
     end)
-    sidebar.MouseLeave:Connect(function()
-        if sbHoverTask then task.cancel(sbHoverTask) sbHoverTask=nil end
-        collapseSidebar()
+    sb.MouseLeave:Connect(function()
+        if sbTask then task.cancel(sbTask); sbTask=nil end
+        collapseSB()
     end)
 
-    -- ── CONTENT AREA ─────────────────────────────────────
-    local contentArea = new("Frame",{
-        Name="Content",
-        Size=UDim2.new(1,-CONTENT_X_COL-1,1,0),
-        Position=UDim2.new(0,CONTENT_X_COL+1,0,0),
-        BackgroundColor3=th.Content,
-        BorderSizePixel=0, ClipsDescendants=true,
-    }, clipInner)
-    corner(14, contentArea)
-    new("Frame",{   -- flatten left edge
-        Size=UDim2.new(0,14,1,0),
-        BackgroundColor3=th.Content,
-        BorderSizePixel=0,
-    }, contentArea)
-    regTheme(contentArea,"BackgroundColor3","Content")
+    -- ── CONTENT ──────────────────────────────────────
+    local ca = new("Frame",{
+        Size=UDim2.new(1,-SB_C-2,1,0),
+        Position=UDim2.new(0,SB_C+2,0,0),
+        BackgroundColor3=T.Cont,BorderSizePixel=0,
+        ClipsDescendants=true,
+    },clip)
+    cor(14,ca)
+    new("Frame",{Size=UDim2.new(0,14,1,0),BackgroundColor3=T.Cont,BorderSizePixel=0},ca)
+    reg(ca,"BackgroundColor3","Cont")
 
-    -- ── CONTENT HEADER ────────────────────────────────────
-    local contentHeader = new("Frame",{
-        Size=UDim2.new(1,0,0,48),
-        BackgroundColor3=th.Root,
-        BackgroundTransparency=0.4,
-        BorderSizePixel=0,
-    }, contentArea)
-    corner(14, contentHeader)
+    -- content header
+    local ch = new("Frame",{
+        Size=UDim2.new(1,0,0,46),
+        BackgroundColor3=T.Side,BorderSizePixel=0,
+    },ca)
     new("Frame",{
         Size=UDim2.new(1,0,0,14),Position=UDim2.new(0,0,1,-14),
-        BackgroundColor3=th.Root, BackgroundTransparency=0.4, BorderSizePixel=0,
-    }, contentHeader)
+        BackgroundColor3=T.Side,BorderSizePixel=0,
+    },ch)
+    reg(ch,"BackgroundColor3","Side")
 
-    local headerDivider = new("Frame",{
+    local chDiv = new("Frame",{
         Size=UDim2.new(1,-24,0,1),Position=UDim2.new(0,12,1,-1),
-        BackgroundColor3=th.Border, BorderSizePixel=0,
-    }, contentHeader)
-    regTheme(headerDivider,"BackgroundColor3","Border")
+        BackgroundColor3=T.Bdr,BorderSizePixel=0,
+    },ch)
+    reg(chDiv,"BackgroundColor3","Bdr")
 
-    local headerTitle = new("TextLabel",{
-        Size=UDim2.new(1,-90,1,0),Position=UDim2.new(0,16,0,0),
-        BackgroundTransparency=1,
-        Text="Identity",
-        Font=Enum.Font.GothamBold, TextSize=15,
-        TextColor3=th.TextPri,
-        TextXAlignment=Enum.TextXAlignment.Left,
-    }, contentHeader)
-    regTheme(headerTitle,"TextColor3","TextPri")
+    local chBar = new("Frame",{
+        Size=UDim2.new(0,3,0,20),Position=UDim2.new(0,12,0.5,-10),
+        BackgroundColor3=T.Acc,BorderSizePixel=0,
+    },ch)
+    cor(2,chBar)
 
-    -- Version label in header right
-    local headerVer = new("TextLabel",{
-        Size=UDim2.new(0,80,1,0),
-        Position=UDim2.new(1,-90,0,0),
-        BackgroundTransparency=1,
-        Text="v2  anomia",
-        Font=Enum.Font.Gotham, TextSize=11,
-        TextColor3=th.TextSec,
-        TextXAlignment=Enum.TextXAlignment.Right,
-    }, contentHeader)
-    regTheme(headerVer,"TextColor3","TextSec")
+    local chTitle = new("TextLabel",{
+        Size=UDim2.new(0.6,0,1,0),Position=UDim2.new(0,20,0,0),
+        BackgroundTransparency=1,Text="Identity",
+        Font=Enum.Font.GothamBold,TextSize=14,
+        TextColor3=T.TxtP,TextXAlignment=Enum.TextXAlignment.Left,
+    },ch)
+    reg(chTitle,"TextColor3","TxtP")
 
-    -- ── COMPONENT BUILDERS ────────────────────────────────
+    new("TextLabel",{
+        Size=UDim2.new(0,100,1,0),Position=UDim2.new(1,-108,0,0),
+        BackgroundTransparency=1,Text="anomia v2.1",
+        Font=Enum.Font.Gotham,TextSize=11,
+        TextColor3=T.TxtS,TextXAlignment=Enum.TextXAlignment.Right,
+    },ch)
+
+    -- header title updater
+    local TLABELS = {}
+    for _,td in ipairs(TABS) do TLABELS[td.id]=td.lbl end
+    task.spawn(function()
+        while chTitle and chTitle.Parent do
+            chTitle.Text = TLABELS[activeTab] or "anomia"
+            chTitle.TextColor3 = T.TxtP
+            chBar.BackgroundColor3 = T.Acc
+            task.wait(0.15)
+        end
+    end)
+
+    -- ── COMPONENT HELPERS ────────────────────────────
+
     local function makeScroll(tabId)
         local f = new("ScrollingFrame",{
             Name=tabId,
-            Size=UDim2.new(1,0,1,-50),
-            Position=UDim2.new(0,0,0,50),
-            BackgroundColor3=th.Content,
+            Size=UDim2.new(1,0,1,-48),
+            Position=UDim2.new(0,0,0,48),
+            BackgroundColor3=T.Cont,
             BackgroundTransparency=0,
             BorderSizePixel=0,
             ScrollBarThickness=2,
-            ScrollBarImageColor3=T.Accent,
+            ScrollBarImageColor3=T.Acc,
             CanvasSize=UDim2.new(0,0,0,0),
             AutomaticCanvasSize=Enum.AutomaticSize.Y,
             Visible=tabId==activeTab,
-        }, contentArea)
-        new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,4)}, f)
-        pad(10,10,12,12, f)
-        tabFrames[tabId] = f
-        regTheme(f,"BackgroundColor3","Content")
+        },ca)
+        new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,4)},f)
+        pd(10,12,12,12,f)
+        tabFrames[tabId]=f
+        reg(f,"BackgroundColor3","Cont")
         return f
     end
 
-    -- Section header
-    local function secHead(parent, text, lo)
-        local f = new("Frame",{
-            Size=UDim2.new(1,-4,0,22), BackgroundTransparency=1,
-            LayoutOrder=lo or 1,
-        }, parent)
-        local accent = new("Frame",{
-            Size=UDim2.new(0,3,0,14),Position=UDim2.new(0,0,0.5,-7),
-            BackgroundColor3=T.Accent, BorderSizePixel=0,
-        }, f)
-        corner(2, accent)
+    local function secH(par,txt,lo)
+        local f=new("Frame",{
+            Size=UDim2.new(1,-4,0,20),BackgroundTransparency=1,LayoutOrder=lo or 1,
+        },par)
+        local ab=new("Frame",{
+            Size=UDim2.new(0,3,0,12),Position=UDim2.new(0,0,0.5,-6),
+            BackgroundColor3=T.Acc,BorderSizePixel=0,
+        },f)
+        cor(2,ab)
         new("TextLabel",{
-            Size=UDim2.new(1,-10,1,0), Position=UDim2.new(0,8,0,0),
-            BackgroundTransparency=1,
-            Text=text:upper(),
-            Font=Enum.Font.GothamBold, TextSize=10,
-            TextColor3=T.TextSec,
-            TextXAlignment=Enum.TextXAlignment.Left,
-        }, f)
+            Size=UDim2.new(1,-8,1,0),Position=UDim2.new(0,7,0,0),
+            BackgroundTransparency=1,Text=txt:upper(),
+            Font=Enum.Font.GothamBold,TextSize=10,
+            TextColor3=T.TxtS,TextXAlignment=Enum.TextXAlignment.Left,
+        },f)
         return f
     end
 
-    -- Row card
-    local function card(parent, lo, h)
-        h = h or 40
-        local f = new("Frame",{
-            Size=UDim2.new(1,0,0,h),
-            BackgroundColor3=T.Card,
-            BorderSizePixel=0, LayoutOrder=lo or 1,
-        }, parent)
-        corner(8, f)
-        pad(0,0,12,12, f)
-        -- hover
-        f.MouseEnter:Connect(function() tw(f,TI_FAST,{BackgroundColor3=T.CardHover}) end)
-        f.MouseLeave:Connect(function() tw(f,TI_FAST,{BackgroundColor3=T.Card}) end)
-        regTheme(f,"BackgroundColor3","Card")
+    local function crd(par,lo,h)
+        h=h or 40
+        local f=new("Frame",{
+            Size=UDim2.new(1,0,0,h),BackgroundColor3=T.Card,
+            BorderSizePixel=0,LayoutOrder=lo or 1,
+        },par)
+        cor(8,f)
+        pd(0,0,12,12,f)
+        f.MouseEnter:Connect(function() tw(f,TI_F,{BackgroundColor3=T.CardH}) end)
+        f.MouseLeave:Connect(function() tw(f,TI_F,{BackgroundColor3=T.Card}) end)
+        reg(f,"BackgroundColor3","Card")
         return f
     end
 
-    -- Label + optional tooltip
-    local function rowLabel(parent, text, tip)
-        local lbl = new("TextLabel",{
-            Size=UDim2.new(0.5,-4,1,0),
-            BackgroundTransparency=1,
-            Text=text,
-            Font=Enum.Font.GothamBold, TextSize=12,
-            TextColor3=T.TextPri,
-            TextXAlignment=Enum.TextXAlignment.Left,
-        }, parent)
-        regTheme(lbl,"TextColor3","TextPri")
+    local function rowLbl(par,txt,tip)
+        local l=new("TextLabel",{
+            Size=UDim2.new(0.5,-4,1,0),BackgroundTransparency=1,
+            Text=txt,Font=Enum.Font.GothamBold,TextSize=12,
+            TextColor3=T.TxtP,TextXAlignment=Enum.TextXAlignment.Left,
+        },par)
+        reg(l,"TextColor3","TxtP")
         if tip then
-            local tipBtn = new("TextButton",{
-                Size=UDim2.new(0,14,0,14),
-                Position=UDim2.new(0, #text*6+8, 0.5,-7),
-                BackgroundColor3=T.AccentDim,
-                BackgroundTransparency=0.3,
-                Text="i", Font=Enum.Font.GothamBold, TextSize=9,
-                TextColor3=Color3.new(1,1,1),
-                BorderSizePixel=0,
-            }, parent)
-            corner(9, tipBtn)
+            local ib=new("TextButton",{
+                Size=UDim2.new(0,13,0,13),
+                Position=UDim2.new(0,#txt*6.5+14,0.5,-6.5),
+                BackgroundColor3=T.AccDim,BackgroundTransparency=0.35,
+                Text="i",Font=Enum.Font.GothamBold,TextSize=8,
+                TextColor3=Color3.new(1,1,1),BorderSizePixel=0,
+            },par)
+            cor(8,ib)
             local tt
-            tipBtn.MouseEnter:Connect(function()
+            ib.MouseEnter:Connect(function()
                 if tt then tt:Destroy() end
-                tt = new("Frame",{
-                    Size=UDim2.new(0,math.max(140,#tip*6.5),0,26),
-                    Position=UDim2.new(0,0,1,4),
-                    BackgroundColor3=T.Card,
-                    BorderSizePixel=0, ZIndex=30,
-                }, tipBtn)
-                corner(6, tt)
-                stroke(T.Accent,1,0.5,tt)
+                tt=new("Frame",{
+                    Size=UDim2.new(0,math.max(130,#tip*6.2),0,24),
+                    Position=UDim2.new(0,0,1,3),
+                    BackgroundColor3=T.Card,BorderSizePixel=0,ZIndex=40,
+                },ib)
+                cor(6,tt)
+                str(T.Acc,1,0.5,tt)
                 new("TextLabel",{
-                    Size=UDim2.new(1,-10,1,0),Position=UDim2.new(0,5,0,0),
-                    BackgroundTransparency=1, Text=tip,
-                    Font=Enum.Font.Gotham, TextSize=10,
-                    TextColor3=T.TextPri, ZIndex=30,
+                    Size=UDim2.new(1,-8,1,0),Position=UDim2.new(0,4,0,0),
+                    BackgroundTransparency=1,Text=tip,
+                    Font=Enum.Font.Gotham,TextSize=10,
+                    TextColor3=T.TxtP,ZIndex=40,
                     TextXAlignment=Enum.TextXAlignment.Left,
-                }, tt)
+                },tt)
             end)
-            tipBtn.MouseLeave:Connect(function()
-                if tt then tt:Destroy(); tt=nil end
+            ib.MouseLeave:Connect(function()
+                if tt then tt:Destroy();tt=nil end
             end)
         end
-        return lbl
+        return l
     end
 
-    -- Toggle switch
-    local function toggle(parent, cfgKey, onChange)
-        local on = CFG[cfgKey]
-        local track = new("TextButton",{
+    local function tog(par,key,cb)
+        local on=CFG[key]
+        local track=new("TextButton",{
             Size=UDim2.new(0,42,0,22),
             Position=UDim2.new(1,-42,0.5,-11),
-            BackgroundColor3=on and T.Toggle_ON or T.Toggle_OFF,
-            Text="", BorderSizePixel=0,
-        }, parent)
-        corner(11, track)
-
-        local knob = new("Frame",{
+            BackgroundColor3=on and T.TonOn or T.TonOff,
+            Text="",BorderSizePixel=0,
+        },par)
+        cor(11,track)
+        local knob=new("Frame",{
             Size=UDim2.new(0,16,0,16),
             Position=on and UDim2.new(1,-19,0.5,-8) or UDim2.new(0,3,0.5,-8),
-            BackgroundColor3=Color3.new(1,1,1),
-            BorderSizePixel=0,
-        }, track)
-        corner(9, knob)
-        new("UIDropShadowEffect",{ShadowTransparency=0.65,BlurRadius=4}, knob)
-
+            BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,
+        },track)
+        cor(9,knob)
         track.MouseButton1Click:Connect(function()
-            CFG[cfgKey] = not CFG[cfgKey]
-            local v = CFG[cfgKey]
-            tw(track, TI_FAST, {BackgroundColor3=v and T.Toggle_ON or T.Toggle_OFF})
-            tw(knob,  TI_FAST, {Position=v and UDim2.new(1,-19,0.5,-8) or UDim2.new(0,3,0.5,-8)})
-            if onChange then onChange(v) end
+            CFG[key]=not CFG[key]
+            local v=CFG[key]
+            tw(track,TI_F,{BackgroundColor3=v and T.TonOn or T.TonOff})
+            tw(knob,TI_F,{Position=v and UDim2.new(1,-19,0.5,-8) or UDim2.new(0,3,0.5,-8)})
+            if cb then cb(v) end
         end)
         return track
     end
 
-    -- Text input
-    local function textInput(parent, cfgKey, placeholder, onDone)
-        local box = new("TextBox",{
-            Size=UDim2.new(0.45,0,0,26),
-            Position=UDim2.new(0.52,0,0.5,-13),
-            BackgroundColor3=T.Content,
-            BackgroundTransparency=0.3,
+    local function txInput(par,key,ph,cb)
+        local bx=new("TextBox",{
+            Size=UDim2.new(0.45,-4,0,26),
+            Position=UDim2.new(0.53,0,0.5,-13),
+            BackgroundColor3=T.Win,BackgroundTransparency=0.2,
             BorderSizePixel=0,
-            Text=tostring(CFG[cfgKey] or ""),
-            PlaceholderText=placeholder or "",
-            Font=Enum.Font.Gotham, TextSize=12,
-            TextColor3=T.TextPri,
-            PlaceholderColor3=T.TextSec,
+            Text=tostring(CFG[key] or ""),
+            PlaceholderText=ph or "",
+            Font=Enum.Font.Gotham,TextSize=12,
+            TextColor3=T.TxtP,PlaceholderColor3=T.TxtS,
             ClearTextOnFocus=false,
-        }, parent)
-        corner(7, box)
-        stroke(T.Border, 1, 0, box)
-        regTheme(box,"TextColor3","TextPri")
-        box.Focused:Connect(function()
-            tw(box, TI_FAST, {BackgroundTransparency=0})
-            for _,s in ipairs(box:GetChildren()) do
-                if s:IsA("UIStroke") then tw(s,TI_FAST,{Color=T.Accent}) end
+        },par)
+        cor(7,bx)
+        str(T.Bdr,1,0,bx)
+        reg(bx,"TextColor3","TxtP")
+        bx.Focused:Connect(function()
+            tw(bx,TI_F,{BackgroundTransparency=0})
+            for _,s in ipairs(bx:GetChildren()) do
+                if s:IsA("UIStroke") then tw(s,TI_F,{Color=T.Acc}) end
             end
         end)
-        box.FocusLost:Connect(function()
-            tw(box, TI_FAST, {BackgroundTransparency=0.3})
-            for _,s in ipairs(box:GetChildren()) do
-                if s:IsA("UIStroke") then tw(s,TI_FAST,{Color=T.Border}) end
+        bx.FocusLost:Connect(function()
+            tw(bx,TI_F,{BackgroundTransparency=0.2})
+            for _,s in ipairs(bx:GetChildren()) do
+                if s:IsA("UIStroke") then tw(s,TI_F,{Color=T.Bdr}) end
             end
-            local v = box.Text
-            local n = tonumber(v)
-            CFG[cfgKey] = (n ~= nil and type(CFG[cfgKey])=="number") and n or v
-            if onDone then onDone(CFG[cfgKey]) end
+            local v=bx.Text
+            local n=tonumber(v)
+            CFG[key]=(n~=nil and type(CFG[key])=="number") and n or v
+            if cb then cb(CFG[key]) end
         end)
-        return box
+        return bx
     end
 
-    -- Dropdown
-    local function dropdown(parent, cfgKey, opts, onChange)
-        local cur = tostring(CFG[cfgKey] or opts[1])
-        local isOpen = false
-        local dropFrame
+    local function ddrop(par,key,opts,cb)
+        local cur=tostring(CFG[key] or opts[1])
+        local open=false; local df
 
-        local btn = new("TextButton",{
-            Size=UDim2.new(0.45,0,0,26),
-            Position=UDim2.new(0.52,0,0.5,-13),
-            BackgroundColor3=T.Content,
-            BackgroundTransparency=0.3,
-            BorderSizePixel=0,
-            Text="",
-        }, parent)
-        corner(7, btn)
-        stroke(T.Border, 1, 0, btn)
+        local btn=new("TextButton",{
+            Size=UDim2.new(0.45,-4,0,26),
+            Position=UDim2.new(0.53,0,0.5,-13),
+            BackgroundColor3=T.Win,BackgroundTransparency=0.2,
+            BorderSizePixel=0,Text="",
+        },par)
+        cor(7,btn)
+        str(T.Bdr,1,0,btn)
 
-        local btnTxt = new("TextLabel",{
-            Size=UDim2.new(1,-22,1,0), Position=UDim2.new(0,8,0,0),
-            BackgroundTransparency=1,
-            Text=cur,
-            Font=Enum.Font.Gotham, TextSize=12,
-            TextColor3=T.TextPri,
-            TextXAlignment=Enum.TextXAlignment.Left,
-        }, btn)
-        regTheme(btnTxt,"TextColor3","TextPri")
+        local btxt=new("TextLabel",{
+            Size=UDim2.new(1,-20,1,0),Position=UDim2.new(0,8,0,0),
+            BackgroundTransparency=1,Text=cur,
+            Font=Enum.Font.Gotham,TextSize=12,
+            TextColor3=T.TxtP,TextXAlignment=Enum.TextXAlignment.Left,
+        },btn)
+        reg(btxt,"TextColor3","TxtP")
+        local chev=new("TextLabel",{
+            Size=UDim2.new(0,18,1,0),Position=UDim2.new(1,-20,0,0),
+            BackgroundTransparency=1,Text="v",
+            Font=Enum.Font.GothamBold,TextSize=9,TextColor3=T.TxtS,
+        },btn)
 
-        local chevron = new("TextLabel",{
-            Size=UDim2.new(0,18,1,0), Position=UDim2.new(1,-20,0,0),
-            BackgroundTransparency=1, Text="v",
-            Font=Enum.Font.GothamBold, TextSize=9,
-            TextColor3=T.TextSec,
-        }, btn)
-
-        local function closeDropdown()
-            if dropFrame then dropFrame:Destroy(); dropFrame=nil end
-            isOpen=false
-            tw(chevron, TI_FAST, {Rotation=0})
+        local function closeDrop()
+            if df then df:Destroy();df=nil end
+            open=false
+            tw(chev,TI_F,{Rotation=0})
         end
 
         btn.MouseButton1Click:Connect(function()
-            if isOpen then closeDropdown() return end
-            isOpen=true
-            tw(chevron, TI_FAST, {Rotation=180})
-
-            dropFrame = new("Frame",{
-                Size=UDim2.new(0, btn.AbsoluteSize.X, 0, math.min(#opts,5)*30+6),
-                Position=UDim2.new(0, btn.AbsolutePosition.X - contentArea.AbsolutePosition.X,
-                                   0, btn.AbsolutePosition.Y - contentArea.AbsolutePosition.Y + btn.AbsoluteSize.Y + 3),
-                BackgroundColor3=T.Card,
-                BorderSizePixel=0, ZIndex=50, ClipsDescendants=true,
-            }, contentArea)
-            corner(8, dropFrame)
-            stroke(T.Accent, 1, 0.4, dropFrame)
-            new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,2)}, dropFrame)
-            pad(3,3,4,4, dropFrame)
-
+            if open then closeDrop() return end
+            open=true
+            tw(chev,TI_F,{Rotation=180})
+            local bap=btn.AbsolutePosition
+            local bas=btn.AbsoluteSize
+            local cap=ca.AbsolutePosition
+            df=new("Frame",{
+                Size=UDim2.new(0,bas.X,0,math.min(#opts,5)*28+6),
+                Position=UDim2.new(0,bap.X-cap.X,0,bap.Y-cap.Y+bas.Y+3),
+                BackgroundColor3=T.Card,BorderSizePixel=0,ZIndex=50,
+                ClipsDescendants=true,
+            },ca)
+            cor(8,df)
+            str(T.Acc,1,0.4,df)
+            new("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,2)},df)
+            pd(3,3,4,4,df)
             for i,opt in ipairs(opts) do
-                local isCur = opt==cur
-                local optBtn = new("TextButton",{
-                    Size=UDim2.new(1,0,0,26),
-                    BackgroundColor3=isCur and T.CardHover or T.Card,
-                    BackgroundTransparency=isCur and 0 or 0.4,
-                    Text="",
-                    BorderSizePixel=0, ZIndex=51, LayoutOrder=i,
-                }, dropFrame)
-                corner(6, optBtn)
+                local isc=opt==cur
+                local ob=new("TextButton",{
+                    Size=UDim2.new(1,0,0,24),
+                    BackgroundColor3=isc and T.CardH or T.Card,
+                    BackgroundTransparency=isc and 0 or 0.4,
+                    Text="",BorderSizePixel=0,ZIndex=51,LayoutOrder=i,
+                },df)
+                cor(6,ob)
                 new("TextLabel",{
                     Size=UDim2.new(1,-8,1,0),Position=UDim2.new(0,8,0,0),
-                    BackgroundTransparency=1, Text=opt,
-                    Font=isCur and Enum.Font.GothamBold or Enum.Font.Gotham,
+                    BackgroundTransparency=1,Text=opt,
+                    Font=isc and Enum.Font.GothamBold or Enum.Font.Gotham,
                     TextSize=12,
-                    TextColor3=isCur and T.Accent or T.TextPri,
-                    TextXAlignment=Enum.TextXAlignment.Left, ZIndex=51,
-                }, optBtn)
-                optBtn.MouseEnter:Connect(function() tw(optBtn,TI_FAST,{BackgroundTransparency=0}) end)
-                optBtn.MouseLeave:Connect(function() tw(optBtn,TI_FAST,{BackgroundTransparency=isCur and 0 or 0.4}) end)
-                optBtn.MouseButton1Click:Connect(function()
-                    cur=opt; CFG[cfgKey]=opt
-                    btnTxt.Text=opt
-                    closeDropdown()
-                    if onChange then onChange(opt) end
+                    TextColor3=isc and T.Acc or T.TxtP,
+                    TextXAlignment=Enum.TextXAlignment.Left,ZIndex=51,
+                },ob)
+                ob.MouseEnter:Connect(function() tw(ob,TI_F,{BackgroundTransparency=0}) end)
+                ob.MouseLeave:Connect(function() tw(ob,TI_F,{BackgroundTransparency=isc and 0 or 0.4}) end)
+                ob.MouseButton1Click:Connect(function()
+                    cur=opt;CFG[key]=opt;btxt.Text=opt
+                    closeDrop()
+                    if cb then cb(opt) end
                 end)
             end
         end)
         return btn
     end
 
-    -- Number slider
-    local function slider(parent, cfgKey, minV, maxV, step, onChange)
-        local valLbl = new("TextLabel",{
-            Size=UDim2.new(0,38,0,26),
-            Position=UDim2.new(1,-150,0.5,-13),
+    local function sldr(par,key,mn,mx,stp,cb)
+        local pct0=(CFG[key]-mn)/(mx-mn)
+        local vl=new("TextLabel",{
+            Size=UDim2.new(0,40,0,26),
+            Position=UDim2.new(1,-152,0.5,-13),
             BackgroundTransparency=1,
-            Text=tostring(CFG[cfgKey]),
-            Font=Enum.Font.GothamBold, TextSize=12,
-            TextColor3=T.Accent,
-            TextXAlignment=Enum.TextXAlignment.Right,
-        }, parent)
-
-        local track = new("Frame",{
+            Text=tostring(CFG[key]),
+            Font=Enum.Font.GothamBold,TextSize=12,
+            TextColor3=T.Acc,TextXAlignment=Enum.TextXAlignment.Right,
+        },par)
+        local track=new("Frame",{
             Size=UDim2.new(0,96,0,4),
-            Position=UDim2.new(1,-100,0.5,-2),
-            BackgroundColor3=T.Toggle_OFF,
-            BorderSizePixel=0,
-        }, parent)
-        corner(2, track)
-
-        local fill = new("Frame",{
-            Size=UDim2.new((CFG[cfgKey]-minV)/(maxV-minV),0,1,0),
-            BackgroundColor3=T.Accent, BorderSizePixel=0,
-        }, track)
-        corner(2, fill)
-
-        local knob = new("Frame",{
+            Position=UDim2.new(1,-104,0.5,-2),
+            BackgroundColor3=T.TonOff,BorderSizePixel=0,
+        },par)
+        cor(2,track)
+        local fill=new("Frame",{
+            Size=UDim2.new(pct0,0,1,0),
+            BackgroundColor3=T.Acc,BorderSizePixel=0,
+        },track)
+        cor(2,fill)
+        local knob=new("Frame",{
             Size=UDim2.new(0,12,0,12),
-            Position=UDim2.new((CFG[cfgKey]-minV)/(maxV-minV),-6,0.5,-6),
-            BackgroundColor3=Color3.new(1,1,1), BorderSizePixel=0,
-        }, track)
-        corner(8, knob)
-        new("UIDropShadowEffect",{ShadowTransparency=0.6,BlurRadius=4}, knob)
-
-        local sliding=false
+            Position=UDim2.new(pct0,-6,0.5,-6),
+            BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,
+        },track)
+        cor(8,knob)
+        local sl=false
+        local function setV(x)
+            local ap=track.AbsolutePosition
+            local as=track.AbsoluteSize
+            local p=math.clamp((x-ap.X)/as.X,0,1)
+            local v=math.clamp(math.round((mn+p*(mx-mn))/stp)*stp,mn,mx)
+            CFG[key]=v;vl.Text=tostring(v)
+            local fp=(v-mn)/(mx-mn)
+            tw(fill,TweenInfo.new(0.05),{Size=UDim2.new(fp,0,1,0)})
+            tw(knob,TweenInfo.new(0.05),{Position=UDim2.new(fp,-6,0.5,-6)})
+            if cb then cb(v) end
+        end
         knob.InputBegan:Connect(function(i)
-            if i.UserInputType==Enum.UserInputType.MouseButton1 then sliding=true end
+            if i.UserInputType==Enum.UserInputType.MouseButton1 then sl=true end
         end)
         track.InputBegan:Connect(function(i)
-            if i.UserInputType==Enum.UserInputType.MouseButton1 then sliding=true end
+            if i.UserInputType==Enum.UserInputType.MouseButton1 then
+                sl=true; setV(i.Position.X)
+            end
         end)
         UIS.InputEnded:Connect(function(i)
-            if i.UserInputType==Enum.UserInputType.MouseButton1 then sliding=false end
+            if i.UserInputType==Enum.UserInputType.MouseButton1 then sl=false end
         end)
         UIS.InputChanged:Connect(function(i)
-            if not sliding or i.UserInputType~=Enum.UserInputType.MouseMovement then return end
-            local ap = track.AbsolutePosition
-            local as = track.AbsoluteSize
-            local pct = math.clamp((i.Position.X-ap.X)/as.X,0,1)
-            local raw = minV+pct*(maxV-minV)
-            local v = math.clamp(math.round(raw/step)*step, minV, maxV)
-            CFG[cfgKey]=v
-            valLbl.Text=tostring(v)
-            local fp = (v-minV)/(maxV-minV)
-            tw(fill,  TweenInfo.new(0.05), {Size=UDim2.new(fp,0,1,0)})
-            tw(knob,  TweenInfo.new(0.05), {Position=UDim2.new(fp,-6,0.5,-6)})
-            if onChange then onChange(v) end
+            if sl and i.UserInputType==Enum.UserInputType.MouseMovement then setV(i.Position.X) end
         end)
         return track
     end
 
-    -- Action button
-    local function actionBtn(parent, text, accentCol, lo, cb)
-        local r = card(parent, lo, 40)
-        local b = new("TextButton",{
+    local function actBtn(par,txt,col,lo,cb)
+        local r=crd(par,lo)
+        local b=new("TextButton",{
             Size=UDim2.new(0,120,0,26),
-            Position=UDim2.new(1,-120,0.5,-13),
-            BackgroundColor3=accentCol or T.Accent,
-            BackgroundTransparency=0.2,
-            Text=text,
-            Font=Enum.Font.GothamBold, TextSize=12,
-            TextColor3=Color3.new(1,1,1),
-            BorderSizePixel=0,
-        }, r)
-        corner(7, b)
-        b.MouseEnter:Connect(function() tw(b,TI_FAST,{BackgroundTransparency=0}) end)
-        b.MouseLeave:Connect(function() tw(b,TI_FAST,{BackgroundTransparency=0.2}) end)
+            Position=UDim2.new(1,-122,0.5,-13),
+            BackgroundColor3=col or T.Acc,BackgroundTransparency=0.2,
+            Text=txt,Font=Enum.Font.GothamBold,TextSize=12,
+            TextColor3=Color3.new(1,1,1),BorderSizePixel=0,
+        },r)
+        cor(7,b)
+        b.MouseEnter:Connect(function() tw(b,TI_F,{BackgroundTransparency=0}) end)
+        b.MouseLeave:Connect(function() tw(b,TI_F,{BackgroundTransparency=0.2}) end)
         b.MouseButton1Click:Connect(cb)
         new("TextLabel",{
-            Size=UDim2.new(0.5,0,1,0),
-            BackgroundTransparency=1, Text=text,
-            Font=Enum.Font.GothamBold, TextSize=12,
-            TextColor3=T.TextPri,
-            TextXAlignment=Enum.TextXAlignment.Left,
-        }, r)
+            Size=UDim2.new(0.5,0,1,0),BackgroundTransparency=1,Text=txt,
+            Font=Enum.Font.GothamBold,TextSize=12,
+            TextColor3=T.TxtP,TextXAlignment=Enum.TextXAlignment.Left,
+        },r)
         return r
     end
 
-    -- ── IDENTITY TAB ─────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  IDENTITY TAB
+    -- ════════════════════════════════════════════════
     local tId = makeScroll("identity")
 
-    secHead(tId,"Username",1)
+    secH(tId,"Username",1)
+    local c=crd(tId,2); rowLbl(c,"Spoof Username","Replaces your real username in Rivals UIs"); tog(c,"SpoofUsername")
+    local c=crd(tId,3); rowLbl(c,"Fake Username","Username shown instead of your real one"); txInput(c,"FakeUsername","AnoPlayer")
+    secH(tId,"Display Name",4)
+    local c=crd(tId,5); rowLbl(c,"Spoof Display Name","Replaces display name in all Rivals UIs"); tog(c,"SpoofDisplay")
+    local c=crd(tId,6); rowLbl(c,"Fake Display Name","The display name to show"); txInput(c,"FakeDisplay","anomia")
+    secH(tId,"Performance Display",7)
+    local c=crd(tId,8);  rowLbl(c,"Spoof Ping","Fake ping in watermark");tog(c,"SpoofPing")
+    local c=crd(tId,9);  rowLbl(c,"Fake Ping (ms)","");sldr(c,"FakePing",1,999,1)
+    local c=crd(tId,10); rowLbl(c,"Spoof FPS","Fake FPS in watermark");tog(c,"SpoofFPS")
+    local c=crd(tId,11); rowLbl(c,"Fake FPS","");sldr(c,"FakeFPS",1,500,1)
+    local c=crd(tId,12); rowLbl(c,"Spoof Region","Custom region string");tog(c,"SpoofRegion")
+    local c=crd(tId,13); rowLbl(c,"Fake Region","e.g. EU-West, NA-East");txInput(c,"FakeRegion","EU-West")
 
-    local c2 = card(tId,2)
-    rowLabel(c2,"Spoof Username","Replaces your real Roblox username across all UIs")
-    toggle(c2,"SpoofUsername")
-
-    local c3 = card(tId,3)
-    rowLabel(c3,"Fake Username","Username shown instead of your real one")
-    textInput(c3,"FakeUsername","e.g. AnoPlayer")
-
-    local c4 = card(tId,4)
-    rowLabel(c4,"Show on Billboard","Custom overhead nametag on your character")
-    toggle(c4,"ShowOnBillboard",function(v)
-        if v then
-            if lp.Character then applyBillboard(lp.Character) end
-        elseif activeBillboard then
-            activeBillboard:Destroy(); activeBillboard=nil
-        end
-    end)
-
-    secHead(tId,"Display Name",5)
-
-    local c6 = card(tId,6)
-    rowLabel(c6,"Spoof Display Name","Changes the display name shown across all UIs")
-    toggle(c6,"SpoofDisplay")
-
-    local c7 = card(tId,7)
-    rowLabel(c7,"Fake Display Name","The name that replaces your display name")
-    textInput(c7,"FakeDisplay","e.g. anomia")
-
-    secHead(tId,"Performance Display",8)
-
-    local c9 = card(tId,9)
-    rowLabel(c9,"Spoof Ping","Show fake ping value in watermark")
-    toggle(c9,"SpoofPing")
-
-    local c10 = card(tId,10)
-    rowLabel(c10,"Fake Ping (ms)","")
-    slider(c10,"FakePing",1,999,1)
-
-    local c11 = card(tId,11)
-    rowLabel(c11,"Spoof FPS","Show fake FPS value in watermark")
-    toggle(c11,"SpoofFPS")
-
-    local c12 = card(tId,12)
-    rowLabel(c12,"Fake FPS","")
-    slider(c12,"FakeFPS",1,500,1)
-
-    local c13 = card(tId,13)
-    rowLabel(c13,"Spoof Region","Custom region string in watermark")
-    toggle(c13,"SpoofRegion")
-
-    local c14 = card(tId,14)
-    rowLabel(c14,"Fake Region","e.g. EU-West, NA-East")
-    textInput(c14,"FakeRegion","EU-West")
-
-    secHead(tId,"Name Cycling",15)
-
-    local c16 = card(tId,16)
-    rowLabel(c16,"Cycle Through Names","Auto-rotates your spoofed username through a list")
-    toggle(c16,"CycleNames",function(v)
-        if v then startNameCycle() end
-    end)
-
-    local c17 = card(tId,17)
-    rowLabel(c17,"Cycle Interval (s)","Seconds between each name swap")
-    slider(c17,"CycleInterval",1,60,1)
-
-    -- ── STATS TAB ─────────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  STATS TAB
+    -- ════════════════════════════════════════════════
     local tStats = makeScroll("stats")
-
-    local statDefs = {
-        {k="SpoofKills",   vk="FakeKills",   lbl="Kills",       tip="Spoofs kill count in all Rivals UIs",          min=0,max=999999,step=1},
-        {k="SpoofDeaths",  vk="FakeDeaths",  lbl="Deaths",      tip="Spoofs death count in all stat displays",      min=0,max=999999,step=1},
-        {k="SpoofStreak",  vk="FakeStreak",  lbl="Win Streak",  tip="Win streak shown above head + in leaderboard", min=0,max=9999,  step=1},
-        {k="SpoofWins",    vk="FakeWins",    lbl="Wins",        tip="Total duel wins on Career page",               min=0,max=999999,step=1},
-        {k="SpoofLosses",  vk="FakeLosses",  lbl="Losses",      tip="Total losses shown in Career stats",           min=0,max=999999,step=1},
-        {k="SpoofELO",     vk="FakeELO",     lbl="ELO",         tip="Spoofs ELO rating — rank auto-calculates",     min=0,max=5000,  step=25},
-        {k="SpoofLevel",   vk="FakeLevel",   lbl="Career Level",tip="Career level shown in lobby + menus",          min=1,max=999,   step=1},
+    local sDefs = {
+        {k="SpoofKills",  vk="FakeKills",  l="Kills",       t="Kills in kill feed, career, leaderboard", mn=0,mx=999999,sp=1},
+        {k="SpoofDeaths", vk="FakeDeaths", l="Deaths",      t="Deaths shown in career stats",             mn=0,mx=999999,sp=1},
+        {k="SpoofStreak", vk="FakeStreak", l="Win Streak",  t="Patches Rivals own streak billboard + all stat UIs",mn=0,mx=9999,sp=1},
+        {k="SpoofWins",   vk="FakeWins",   l="Wins",        t="Total wins on career page",                mn=0,mx=999999,sp=1},
+        {k="SpoofLosses", vk="FakeLosses", l="Losses",      t="Total losses on career page",              mn=0,mx=999999,sp=1},
+        {k="SpoofELO",    vk="FakeELO",    l="ELO",         t="ELO + rank tier (rank auto-calculates)",   mn=0,mx=5000,  sp=25},
+        {k="SpoofLevel",  vk="FakeLevel",  l="Career Level",t="Career level in lobby and menus",          mn=1,mx=999,   sp=1},
     }
-
-    for i,def in ipairs(statDefs) do
-        local base = i*3
-        secHead(tStats, def.lbl, base-2)
-
-        local cToggle = card(tStats, base-1)
-        rowLabel(cToggle, "Spoof "..def.lbl, def.tip)
-        toggle(cToggle, def.k)
-
-        local cVal = card(tStats, base)
-        rowLabel(cVal, def.lbl.." Value","")
-        slider(cVal, def.vk, def.min, def.max, def.step)
+    for i,d in ipairs(sDefs) do
+        local b=i*3
+        secH(tStats,d.l,b-2)
+        local c=crd(tStats,b-1); rowLbl(c,"Spoof "..d.l,d.t); tog(c,d.k)
+        local c=crd(tStats,b);   rowLbl(c,d.l.." Value",""); sldr(c,d.vk,d.mn,d.mx,d.sp)
     end
-
-    -- ELO rank preview
-    secHead(tStats, "Rank Preview", 50)
-    local cRank = card(tStats, 51)
-    local rankPreviewLbl = new("TextLabel",{
-        Size=UDim2.new(1,-24,1,0), BackgroundTransparency=1,
-        Text="Rank: "..eloToRank(CFG.FakeELO).."  |  ELO: "..CFG.FakeELO,
-        Font=Enum.Font.GothamBold, TextSize=12,
-        TextColor3=T.Accent,
-        TextXAlignment=Enum.TextXAlignment.Left,
-    }, cRank)
-    -- Update rank preview every second
+    secH(tStats,"Live Rank Preview",40)
+    local cRank=crd(tStats,41)
+    local rankPrev=new("TextLabel",{
+        Size=UDim2.new(1,-24,1,0),BackgroundTransparency=1,
+        Text="",Font=Enum.Font.GothamBold,TextSize=12,
+        TextColor3=T.Acc,TextXAlignment=Enum.TextXAlignment.Left,
+    },cRank)
     task.spawn(function()
-        while rankPreviewLbl and rankPreviewLbl.Parent do
-            rankPreviewLbl.Text = "Rank: "..eloToRank(CFG.FakeELO).."  |  ELO: "..CFG.FakeELO
-            task.wait(1)
+        while rankPrev and rankPrev.Parent do
+            rankPrev.Text = elo2rank(CFG.FakeELO).."   (ELO "..CFG.FakeELO..")"
+            task.wait(0.8)
         end
     end)
 
-    secHead(tStats, "Apply Scope", 52)
-    local cCareer = card(tStats,53)
-    rowLabel(cCareer,"Apply to Career Page","Patch Rivals Career page with spoofed stats")
-    toggle(cCareer,"ApplyToCareer")
-
-    local cLDB = card(tStats,54)
-    rowLabel(cLDB,"Apply to Leaderboard","Patch in-game leaderboard with spoofed stats")
-    toggle(cLDB,"ApplyToLDB")
-
-    -- ── STATUS TAB ────────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  STATUS TAB
+    -- ════════════════════════════════════════════════
     local tStatus = makeScroll("status")
-
-    secHead(tStatus,"Account Badge",1)
-    local cBadge = card(tStatus,2,40)
-    rowLabel(cBadge,"Status Badge","Badge prepended to your display name")
-    dropdown(cBadge,"StatusBadge",{"None","Roblox+","Moderator","Developer","RobloxMod"})
-
-    -- Badge preview
-    local cBadgePrev = card(tStatus,3,40)
-    local prevLbl = new("TextLabel",{
-        Size=UDim2.new(1,-24,1,0), BackgroundTransparency=1,
-        Text="Preview: "..spoofDisplay(),
-        Font=Enum.Font.GothamBold, TextSize=12, TextColor3=T.Accent,
-        TextXAlignment=Enum.TextXAlignment.Left,
-    }, cBadgePrev)
+    secH(tStatus,"Account Badge",1)
+    local c=crd(tStatus,2,40); rowLbl(c,"Status Badge","Badge shown next to your name in all UIs")
+    ddrop(c,"StatusBadge",{"None","Roblox+","Moderator","Developer","RobloxMod"})
+    local cPrev=crd(tStatus,3)
+    local prevL=new("TextLabel",{
+        Size=UDim2.new(1,-24,1,0),BackgroundTransparency=1,
+        Text="",Font=Enum.Font.GothamBold,TextSize=12,
+        TextColor3=T.Acc,TextXAlignment=Enum.TextXAlignment.Left,
+    },cPrev)
     task.spawn(function()
-        while prevLbl and prevLbl.Parent do
-            prevLbl.Text = "Preview:  "..spoofDisplay()
+        while prevL and prevL.Parent do
+            prevL.Text="Preview:  "..fakeDisplay()
             task.wait(0.5)
         end
     end)
-
-    secHead(tStatus,"Rank Season Spoofer",4)
-    local cRankE = card(tStatus,5)
-    rowLabel(cRankE,"Enable Rank Spoof","Replaces rank tier text in all Rivals UIs")
-    toggle(cRankE,"RankSpoofEnabled")
-
-    local cRankSeason = card(tStatus,6,40)
-    rowLabel(cRankSeason,"Season","Season 0, 1 or 2")
-    dropdown(cRankSeason,"RankSeason",{"Season 0","Season 1","Season 2"})
-
-    local cRankTier = card(tStatus,7,40)
-    rowLabel(cRankTier,"Rank Tier","Rank shown in place of real rank")
-    dropdown(cRankTier,"RankTier",{
+    secH(tStatus,"Rank Season Spoofer",4)
+    local c=crd(tStatus,5); rowLbl(c,"Enable Rank Spoof","Replaces rank tier text across all Rivals UIs"); tog(c,"RankSpoof")
+    local c=crd(tStatus,6,40); rowLbl(c,"Season","")
+    ddrop(c,"RankSeason",{"Season 0","Season 1","Season 2"})
+    local c=crd(tStatus,7,40); rowLbl(c,"Rank Tier","")
+    ddrop(c,"RankTier",{
         "Unranked","Bronze III","Bronze II","Bronze I",
         "Silver III","Silver II","Silver I",
         "Gold III","Gold II","Gold I",
@@ -1695,348 +1435,224 @@ local function buildUI()
         "Nemesis","Archnemesis",
     })
 
-    -- ── KILL FEED TAB ─────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  KILL FEED TAB
+    -- ════════════════════════════════════════════════
     local tKF = makeScroll("killfeed")
-
-    secHead(tKF,"Kill Feed Override",1)
-    local ckfE = card(tKF,2)
-    rowLabel(ckfE,"Enable Kill Feed Spoof","Override kill feed entries with custom text")
-    toggle(ckfE,"SpoofKillfeed")
-
-    local ckfKiller = card(tKF,3)
-    rowLabel(ckfKiller,"Killer Name","Name shown as killer in custom feed")
-    textInput(ckfKiller,"KFKiller","anomia")
-
-    local ckfVictim = card(tKF,4)
-    rowLabel(ckfVictim,"Victim Name","Name shown as victim in custom feed")
-    textInput(ckfVictim,"KFVictim","target")
-
-    local ckfWeapon = card(tKF,5)
-    rowLabel(ckfWeapon,"Weapon","Weapon string in feed")
-    textInput(ckfWeapon,"KFWeapon","AK-47")
-
-    local ckfStyle = card(tKF,6,40)
-    rowLabel(ckfStyle,"Style","Visual style of the kill feed text")
-    dropdown(ckfStyle,"KFStyle",{"Clean","Arrow","Bracket","Hacker","Minimal"})
-
-    secHead(tKF,"Test",7)
-    actionBtn(tKF,"Fire Test Entry",T.Accent,8,function()
-        pushKF(CFG.KFKiller, CFG.KFWeapon, CFG.KFVictim)
+    secH(tKF,"Kill Feed Override",1)
+    local c=crd(tKF,2); rowLbl(c,"Enable KF Spoof","Override kill feed with custom text"); tog(c,"SpoofKF")
+    local c=crd(tKF,3); rowLbl(c,"Killer Name",""); txInput(c,"KFKiller","anomia")
+    local c=crd(tKF,4); rowLbl(c,"Victim Name",""); txInput(c,"KFVictim","target")
+    local c=crd(tKF,5); rowLbl(c,"Weapon",""); txInput(c,"KFWeapon","AK-47")
+    local c=crd(tKF,6,40); rowLbl(c,"Style","")
+    ddrop(c,"KFStyle",{"Clean","Arrow","Bracket","Hacker","Minimal"})
+    secH(tKF,"Test",7)
+    actBtn(tKF,"Fire Test Entry",T.Acc,8,function()
+        pushKF(CFG.KFKiller,CFG.KFWeapon,CFG.KFVictim)
     end)
 
-    -- ── SKINS TAB ─────────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  SKINS TAB
+    -- ════════════════════════════════════════════════
     local tSkins = makeScroll("skins")
-
-    secHead(tSkins,"Visual Cosmetic Unlock",1)
-    local note = card(tSkins,2,44)
-    new("TextLabel",{
-        Size=UDim2.new(1,-24,1,0), BackgroundTransparency=1,
-        Text="All unlocks are client-side visuals only.",
-        Font=Enum.Font.GothamBold, TextSize=11,
-        TextColor3=T.TextSec,
-        TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true,
-    }, note)
-
-    local cSkinAll = card(tSkins,3)
-    rowLabel(cSkinAll,"Unlock All Skins","Visually unlocks all weapon skins (your view only)")
-    toggle(cSkinAll,"SkinUnlockAll",function(v)
-        if v then
-            -- Scan workspace for weapon tools and try to visually apply
-            task.spawn(function()
-                local char = lp.Character
-                if not char then return end
-                for _, tool in ipairs(char:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        for _, part in ipairs(tool:GetDescendants()) do
-                            if part:IsA("SpecialMesh") then
-                                part.TextureId = "rbxassetid://0"
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-
-    local cWrapAll = card(tSkins,4)
-    rowLabel(cWrapAll,"Unlock All Wraps","Visually marks all wraps as owned in UI")
-    toggle(cWrapAll,"WrapUnlockAll")
-
-    local cCharmAll = card(tSkins,5)
-    rowLabel(cCharmAll,"Unlock All Charms","Marks all charms as owned in UI")
-    toggle(cCharmAll,"CharmUnlockAll")
-
-    secHead(tSkins,"Skin Selection",6)
-    local skinList = {
+    secH(tSkins,"Visual Cosmetic Unlock",1)
+    local c=crd(tSkins,2); rowLbl(c,"Unlock All Skins","Marks all weapon skins as owned (visual, your view)"); tog(c,"SkinUnlockAll")
+    local c=crd(tSkins,3); rowLbl(c,"Unlock All Wraps","Marks all wraps as owned"); tog(c,"WrapUnlockAll")
+    local c=crd(tSkins,4); rowLbl(c,"Unlock All Charms","Marks all charms as owned"); tog(c,"CharmUnlockAll")
+    secH(tSkins,"Skin Selection",5)
+    local c=crd(tSkins,6,40); rowLbl(c,"Equipped Skin","")
+    ddrop(c,"SelectedSkin",{
         "Default","AK-47 Phoenix","AK-47 Dark Matter","AKEY-47 Mythical",
-        "Boneclaw Rifle","Void SMG","Pixel Pistol",
-        "Tommy Gun Legendary","Warp Handgun","Nemesis Blade",
-        "Crystal Rifle","Obsidian Shotgun","Rainbow Wrap","Chibi AK",
-    }
-    local cSkinPick = card(tSkins,7,40)
-    rowLabel(cSkinPick,"Equipped Skin","Skin displayed in your UI/watermark")
-    dropdown(cSkinPick,"SelectedSkin",skinList)
-
-    local cSkinPrev = card(tSkins,8,44)
-    local skinPrevLbl = new("TextLabel",{
-        Size=UDim2.new(1,-24,1,0), BackgroundTransparency=1,
-        Text="",
-        Font=Enum.Font.GothamBold, TextSize=12,
-        TextColor3=T.Accent,
-        TextXAlignment=Enum.TextXAlignment.Left,
-    }, cSkinPrev)
+        "Boneclaw Rifle","Void SMG","Pixel Pistol","Tommy Gun Legendary",
+        "Warp Handgun","Nemesis Blade","Crystal Rifle","Obsidian Shotgun","Rainbow Wrap",
+    })
+    local cPv=crd(tSkins,7)
+    local skinPL=new("TextLabel",{
+        Size=UDim2.new(1,-24,1,0),BackgroundTransparency=1,
+        Text="",Font=Enum.Font.GothamBold,TextSize=12,
+        TextColor3=T.Acc,TextXAlignment=Enum.TextXAlignment.Left,
+    },cPv)
     task.spawn(function()
-        while skinPrevLbl and skinPrevLbl.Parent do
-            skinPrevLbl.Text = "Active: "..CFG.SelectedSkin
-                ..(CFG.SkinUnlockAll and "  [ALL UNLOCKED]" or "")
+        while skinPL and skinPL.Parent do
+            skinPL.Text = "Active: "..CFG.SelectedSkin..(CFG.SkinUnlockAll and "   [ALL]" or "")
             task.wait(0.5)
         end
     end)
 
-    -- ── WATERMARK TAB ─────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  WATERMARK TAB
+    -- ════════════════════════════════════════════════
     local tWM = makeScroll("watermark")
+    secH(tWM,"Watermark",1)
+    local c=crd(tWM,2); rowLbl(c,"Show Watermark",""); tog(c,"WMEnabled",function(v) if WM_GUI then WM_GUI.Enabled=v end end)
+    local c=crd(tWM,3); rowLbl(c,"Main Text",""); txInput(c,"WMText","anomia  |  v2.1",function(v) if WM_MAIN then WM_MAIN.Text=v end end)
+    local c=crd(tWM,4); rowLbl(c,"Auto Sub-Text","Auto-fill name/ping/fps/region"); tog(c,"WMSubAuto")
+    local c=crd(tWM,5); rowLbl(c,"Custom Sub-Text","Used when Auto is off"); txInput(c,"WMSubText","")
+    local c=crd(tWM,6); rowLbl(c,"Font Size",""); sldr(c,"WMSize",8,22,1,function(v) if WM_MAIN then WM_MAIN.TextSize=v end end)
+    local c=crd(tWM,7); rowLbl(c,"Rainbow Text","Cycles through hue spectrum"); tog(c,"WMRainbow")
 
-    secHead(tWM,"Watermark",1)
-    local cwmE = card(tWM,2)
-    rowLabel(cwmE,"Show Watermark","Toggle the anomia watermark overlay")
-    toggle(cwmE,"WMEnabled",function(v)
-        if WM_GUI then WM_GUI.Enabled=v end
-    end)
-
-    local cwmText = card(tWM,3)
-    rowLabel(cwmText,"Main Text","Primary watermark line")
-    textInput(cwmText,"WMText","anomia  |  v2",function(v)
-        if WM_MAIN then WM_MAIN.Text=v end
-    end)
-
-    local cwmSub = card(tWM,4)
-    rowLabel(cwmSub,"Auto Sub-Text","Auto-fill name/ping/fps/region")
-    toggle(cwmSub,"WMSubAuto")
-
-    local cwmSubText = card(tWM,5)
-    rowLabel(cwmSubText,"Custom Sub-Text","Used when Auto Sub-Text is off")
-    textInput(cwmSubText,"WMSubText","custom line here")
-
-    local cwmSize = card(tWM,6)
-    rowLabel(cwmSize,"Font Size","")
-    slider(cwmSize,"WMSize",8,22,1,function(v)
-        if WM_MAIN then WM_MAIN.TextSize=v end
-    end)
-
-    local cwmRainbow = card(tWM,7)
-    rowLabel(cwmRainbow,"Rainbow Text","Cycles watermark through hue spectrum")
-    toggle(cwmRainbow,"WMRainbow")
-
-    -- ── EXTRA TAB ─────────────────────────────────────────
-    local tExtra = makeScroll("extra")
-
-    secHead(tExtra,"Extra Utilities",1)
-
-    local extras = {
-        {k="InfJump",   l="Infinite Jump",       t="Jump infinitely mid-air",               cb=function(v) if v then startInfJump() end end},
-        {k="Noclip",    l="Noclip",               t="Phase through all collision",            cb=function(v) if v then startNoclip() end end},
-        {k="FakeAFK",   l="Anti-AFK",             t="Nudge character every 55s to avoid kick",cb=function(v) if v then startFakeAFK() end end},
-        {k="AntiDead",  l="Skip Death Screen",    t="Attempt to skip elimination overlay",    cb=nil},
-        {k="CleanHUD",  l="Clean HUD",            t="Hide health/backpack via CoreGui toggle", cb=function(v)
+    -- ════════════════════════════════════════════════
+    --  EXTRA TAB
+    -- ════════════════════════════════════════════════
+    local tExt = makeScroll("extra")
+    secH(tExt,"Utilities",1)
+    local xd = {
+        {k="InfJump", l="Infinite Jump",   t="Jump infinitely in air",              cb=function(v) if v then startInfJump() end end},
+        {k="Noclip",  l="Noclip",          t="Phase through all collision geometry", cb=function(v) if v then startNoclip() end end},
+        {k="FakeAFK", l="Anti-AFK",        t="Nudge every 55s to avoid AFK kick",   cb=function(v) if v then startAFK() end end},
+        {k="CleanHUD",l="Clean HUD",       t="Hide health/backpack CoreGui elements",cb=function(v)
             pcall(function()
-                StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health,  not v)
-                StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, not v)
+                SG:SetCoreGuiEnabled(Enum.CoreGuiType.Health,not v)
+                SG:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack,not v)
             end)
         end},
-        {k="ESPNames",  l="ESP Player Names",     t="Billboard name labels through walls",    cb=nil},
     }
-
-    for i, ex in ipairs(extras) do
-        local cx = card(tExtra, i+1)
-        rowLabel(cx, ex.l, ex.t)
-        toggle(cx, ex.k, ex.cb)
+    for i,x in ipairs(xd) do
+        local c=crd(tExt,i+1); rowLbl(c,x.l,x.t); tog(c,x.k,x.cb)
     end
 
-    -- ── CONFIG TAB ────────────────────────────────────────
+    -- ════════════════════════════════════════════════
+    --  CONFIG TAB
+    -- ════════════════════════════════════════════════
     local tCfg = makeScroll("config")
-
-    secHead(tCfg,"Appearance",1)
-    local cTheme = card(tCfg,2,40)
-    rowLabel(cTheme,"Theme","Dark = deep blue-black  |  Light = clean white")
-    dropdown(cTheme,"Theme",{"Dark","Light"},function(v)
-        CFG.Theme=v
-        applyTheme()
-        if WM_GUI then buildWatermark() end
-        if LDB_GUI then buildLDB() end
+    secH(tCfg,"Theme",1)
+    local c=crd(tCfg,2,40); rowLbl(c,"Theme","Dark = deep blue-black  |  Light = clean white")
+    ddrop(c,"Theme",{"Dark","Light"},function(v)
+        CFG.Theme=v; applyTheme()
+        buildWM()
     end)
 
-    secHead(tCfg,"Config Slots",3)
-    for slot=1,3 do
-        local cSlot = card(tCfg, 3+slot*2-1, 40)
-        rowLabel(cSlot,"Slot "..slot..(CFG.ConfigSlot==slot and "  (active)" or ""),"Config slot "..slot)
-        local slotFrame = new("Frame",{
-            Size=UDim2.new(0,200,0,26),
-            Position=UDim2.new(1,-200,0.5,-13),
+    secH(tCfg,"Config Slots",3)
+    for s=1,3 do
+        local c=crd(tCfg,3+s,44)
+        rowLbl(c,"Slot "..s..(CFG.ConfigSlot==s and "  (active)" or ""),"Config slot "..s)
+        local fr=new("Frame",{
+            Size=UDim2.new(0,128,0,26),
+            Position=UDim2.new(1,-130,0.5,-13),
             BackgroundTransparency=1,
-        }, cSlot)
-        new("UIListLayout",{
-            FillDirection=Enum.FillDirection.Horizontal,
-            Padding=UDim.new(0,6),
-            HorizontalAlignment=Enum.HorizontalAlignment.Right,
-        }, slotFrame)
-
-        local function miniBtn(txt, col, cb)
-            local b = new("TextButton",{
-                Size=UDim2.new(0,56,1,0),
+        },c)
+        new("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5),HorizontalAlignment=Enum.HorizontalAlignment.Right},fr)
+        local function mBtn(txt,col,cb2)
+            local b=new("TextButton",{
+                Size=UDim2.new(0,58,1,0),
                 BackgroundColor3=col,BackgroundTransparency=0.25,
                 Text=txt,Font=Enum.Font.GothamBold,TextSize=11,
                 TextColor3=Color3.new(1,1,1),BorderSizePixel=0,
-            }, slotFrame)
-            corner(6, b)
-            b.MouseEnter:Connect(function() tw(b,TI_FAST,{BackgroundTransparency=0}) end)
-            b.MouseLeave:Connect(function() tw(b,TI_FAST,{BackgroundTransparency=0.25}) end)
-            b.MouseButton1Click:Connect(cb)
+            },fr)
+            cor(6,b)
+            b.MouseEnter:Connect(function() tw(b,TI_F,{BackgroundTransparency=0}) end)
+            b.MouseLeave:Connect(function() tw(b,TI_F,{BackgroundTransparency=0.25}) end)
+            b.MouseButton1Click:Connect(cb2)
         end
-        local savedSlot = slot  -- capture
-        miniBtn("Save",  Color3.fromRGB(50,165,80),  function() saveSlot(savedSlot) CFG.ConfigSlot=savedSlot
-            pcall(function() StarterGui:SetCore("SendNotification",{Title="anomia",Text="Slot "..savedSlot.." saved",Duration=2}) end)
+        local slot=s
+        mBtn("Save",Color3.fromRGB(44,160,74),function()
+            saveSlot(slot);CFG.ConfigSlot=slot
+            pcall(function() SG:SetCore("SendNotification",{Title="anomia",Text="Slot "..slot.." saved",Duration=2}) end)
         end)
-        miniBtn("Load",  Color3.fromRGB(50,120,210), function() loadSlot(savedSlot) CFG.ConfigSlot=savedSlot
-            pcall(function() StarterGui:SetCore("SendNotification",{Title="anomia",Text="Slot "..savedSlot.." loaded",Duration=2}) end)
+        mBtn("Load",Color3.fromRGB(44,118,210),function()
+            loadSlot(slot);CFG.ConfigSlot=slot
+            pcall(function() SG:SetCore("SendNotification",{Title="anomia",Text="Slot "..slot.." loaded",Duration=2}) end)
         end)
     end
 
-    secHead(tCfg,"Keybinds",10)
-
-    local bindDefs = {
-        {lbl="Toggle Menu",      tip="Open/close the anomia menu",        k1="MenuKey",       k2="MenuKey2"},
-        {lbl="Cycle Config Slot",tip="Switch between config slots 1-3",   k1="ConfigCycleKey",k2="ConfigCycleKey2"},
+    secH(tCfg,"Keybinds",10)
+    local kbDefs = {
+        {l="Toggle Menu",      k1="MenuKey",    k2="MenuKey2"},
+        {l="Cycle Config Slot",k1="CfgCycleKey",k2="CfgCycleKey2"},
     }
-    for i, bd in ipairs(bindDefs) do
-        local cBind = card(tCfg, 10+i, 40)
-        rowLabel(cBind, bd.lbl, bd.tip)
-        local bindFrame = new("Frame",{
-            Size=UDim2.new(0.46,0,0,26),
-            Position=UDim2.new(0.52,0,0.5,-13),
+    for i,kd in ipairs(kbDefs) do
+        local c=crd(tCfg,10+i,44)
+        rowLbl(c,kd.l,"Press both keys or just one to bind")
+        local fr=new("Frame",{
+            Size=UDim2.new(0.45,0,0,26),
+            Position=UDim2.new(0.53,0,0.5,-13),
             BackgroundTransparency=1,
-        }, cBind)
-        new("UIListLayout",{
-            FillDirection=Enum.FillDirection.Horizontal,
-            Padding=UDim.new(0,4),
-        }, bindFrame)
-
-        for _, kKey in ipairs({bd.k1, bd.k2}) do
-            local box = new("TextButton",{
+        },c)
+        new("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,4)},fr)
+        for _,kk in ipairs({kd.k1,kd.k2}) do
+            local box=new("TextButton",{
                 Size=UDim2.new(0.5,-2,1,0),
-                BackgroundColor3=T.Content,BackgroundTransparency=0.2,
-                Text=CFG[kKey]=="" and "—" or CFG[kKey],
+                BackgroundColor3=T.Win,BackgroundTransparency=0.2,
+                Text=CFG[kk]=="" and "—" or CFG[kk],
                 Font=Enum.Font.GothamBold,TextSize=10,
-                TextColor3=T.Accent, BorderSizePixel=0,
-            }, bindFrame)
-            corner(6, box)
-            stroke(T.Border,1,0,box)
-            local listening=false
+                TextColor3=T.Acc,BorderSizePixel=0,
+            },fr)
+            cor(6,box)
+            str(T.Bdr,1,0,box)
+            local ls=false
             box.MouseButton1Click:Connect(function()
-                if listening then return end
-                listening=true
-                box.Text="..."
-                local conn
-                conn = UIS.InputBegan:Connect(function(inp, gp)
+                if ls then return end;ls=true;box.Text="..."
+                local cn
+                cn=UIS.InputBegan:Connect(function(inp,gp)
                     if gp then return end
-                    local kname = inp.KeyCode.Name
-                    if kname=="Unknown" then kname="" end
-                    CFG[kKey] = kname
-                    box.Text = kname=="" and "—" or kname
-                    listening=false
-                    conn:Disconnect()
+                    local kn=inp.KeyCode.Name
+                    if kn=="Unknown" then kn="" end
+                    CFG[kk]=kn;box.Text=kn=="" and "—" or kn
+                    ls=false;cn:Disconnect()
                 end)
             end)
         end
     end
 
-    -- ── HEADER TITLE UPDATER ──────────────────────────────
-    task.spawn(function()
-        local tabNames = {}
-        for _,td in ipairs(TAB_DATA) do tabNames[td.id]=td.label end
-        while headerTitle and headerTitle.Parent do
-            headerTitle.Text = tabNames[activeTab] or "anomia"
-            task.wait(0.2)
-        end
-    end)
-
-    -- Show first tab
+    -- ── show initial tab ──────────────────────────────
     if tabFrames[activeTab] then tabFrames[activeTab].Visible=true end
 end
 
--- ┌─────────────────────────────────────────────────────┐
---   KEYBIND HANDLER
--- └─────────────────────────────────────────────────────┘
-local ldbVisible = false
-local cfgCycling = false
+-- ═══════════════════════════════════════════════════
+--  KEYBINDS
+-- ═══════════════════════════════════════════════════
+local cfgCooldown = false
 
 UIS.InputBegan:Connect(function(inp, gp)
     if gp then return end
     local kn = inp.KeyCode.Name
 
-    -- Menu toggle (1 or 2 keys)
-    if kn == CFG.MenuKey or (CFG.MenuKey2 ~= "" and kn == CFG.MenuKey2) then
+    -- menu toggle
+    if kn==CFG.MenuKey or (CFG.MenuKey2~="" and kn==CFG.MenuKey2) then
         menuOpen = not menuOpen
-        if MAIN_GUI then
-            MAIN_GUI.Enabled = menuOpen
-        end
+        if MAIN_GUI then MAIN_GUI.Enabled=menuOpen end
     end
 
-    -- Leaderboard toggle (Tab key)
-    if inp.KeyCode == Enum.KeyCode.Tab then
-        ldbVisible = not ldbVisible
+    -- leaderboard
+    if inp.KeyCode==Enum.KeyCode.Tab then
+        ldbOpen = not ldbOpen
         if LDB_GUI then
-            LDB_GUI.Enabled = ldbVisible
-            if ldbVisible then refreshLDB() end
+            LDB_GUI.Enabled=ldbOpen
+            if ldbOpen then refreshLDB() end
         end
     end
 
-    -- Config slot cycling
-    if kn == CFG.ConfigCycleKey or (CFG.ConfigCycleKey2~="" and kn==CFG.ConfigCycleKey2) then
-        if not cfgCycling then
-            cfgCycling = true
-            CFG.ConfigSlot = (CFG.ConfigSlot % 3) + 1
-            loadSlot(CFG.ConfigSlot)
-            pcall(function()
-                StarterGui:SetCore("SendNotification",{
-                    Title="anomia",
-                    Text="Config slot "..CFG.ConfigSlot.." loaded",
-                    Duration=2,
-                })
-            end)
-            task.delay(0.5, function() cfgCycling=false end)
-        end
+    -- config cycle
+    if not cfgCooldown and (kn==CFG.CfgCycleKey or (CFG.CfgCycleKey2~="" and kn==CFG.CfgCycleKey2)) then
+        cfgCooldown=true
+        CFG.ConfigSlot=(CFG.ConfigSlot%3)+1
+        loadSlot(CFG.ConfigSlot)
+        pcall(function()
+            SG:SetCore("SendNotification",{
+                Title="anomia",Text="Config slot "..CFG.ConfigSlot.." loaded",Duration=2,
+            })
+        end)
+        task.delay(0.5,function() cfgCooldown=false end)
     end
 end)
 
--- ┌─────────────────────────────────────────────────────┐
---   LEADERBOARD REFRESH LOOP  (3s — light)
--- └─────────────────────────────────────────────────────┘
-task.spawn(function()
-    while true do
-        task.wait(3)
-        if ldbVisible and LDB_GUI then
-            refreshLDB()
-        end
-    end
-end)
-
--- ┌─────────────────────────────────────────────────────┐
---   INIT
--- └─────────────────────────────────────────────────────┘
+-- ═══════════════════════════════════════════════════
+--  INIT
+-- ═══════════════════════════════════════════════════
 local function init()
-    disableVanillaLDB()
+    killLDB()
     buildLDB()
-    buildKFGui()
-    buildWatermark()
+    buildKF()
+    buildWM()
     buildUI()
 
     task.spawn(function()
-        task.wait(1.2)
+        task.wait(1)
         pcall(function()
-            StarterGui:SetCore("SendNotification",{
-                Title = "anomia  |  v2",
-                Text  = "Rivals spoofer loaded — "..CFG.MenuKey.." to toggle menu",
-                Duration = 5,
+            SG:SetCore("SendNotification",{
+                Title="anomia  v2.1",
+                Text="Rivals spoofer loaded — "..CFG.MenuKey.." to toggle",
+                Duration=5,
             })
         end)
     end)
