@@ -4,7 +4,7 @@ local lp = Players.LocalPlayer
 
 local CFG = {
     KillMsgEnabled = true,
-    KillMsgText = "anomia *wiped* the target",   -- put * like this: *text here* = yellow + black stroke like rivals eliminated text
+    KillMsgText = "anomia",   -- put * like this: *text here* = yellow + black stroke like rivals eliminated text
     AutoLoad = true, -- Automatically loads on join, teleport, etc.
 }
 
