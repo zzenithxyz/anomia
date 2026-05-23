@@ -5,7 +5,6 @@ local lp = Players.LocalPlayer
 local CFG = {
     KillMsgEnabled = true,
     KillMsgText = "anomia",   -- put * like this: *text here* = yellow + black stroke like rivals eliminated text
-    AutoLoad = true, -- Automatically loads on join, teleport, etc.
 }
 
 local kmLabels = setmetatable({}, {__mode = "k"})
@@ -83,31 +82,19 @@ local function scanForKillFeed(root)
     end)
 end
 
-local function startSpoofer()
-    if not CFG.AutoLoad then return end
-    local playerGui = lp:WaitForChild("PlayerGui", 5)
-    if playerGui then scanForKillFeed(playerGui) end
-    scanForKillFeed(game:GetService("CoreGui"))
-end
-
 -- INIT
 task.spawn(function()
     task.wait(0.8)
 
-    startSpoofer()
+    local playerGui = lp:WaitForChild("PlayerGui", 5)
+    if playerGui then scanForKillFeed(playerGui) end
+    scanForKillFeed(game:GetService("CoreGui"))
 
-    -- AutoLoad on respawn / teleport / new round
-    lp.CharacterAdded:Connect(function()
-        task.wait(0.6)
-        startSpoofer()
-    end)
-
-    -- Background refresh
     task.spawn(function()
         while true do
             task.wait(4)
-            if CFG.AutoLoad then
-                startSpoofer()
+            if playerGui then
+                scanForKillFeed(playerGui)
             end
         end
     end)
