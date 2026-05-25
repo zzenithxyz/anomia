@@ -29,7 +29,7 @@ end
 local function matchesKill(s)
     if not s or s == "" then return false end
     local l = s:lower()
-    return l:find("eliminat") or l:find("wiped") or l:find("defeat") or l:find("killed") ~= nil
+    return l:find("eliminated") or l:find("assist") or l:find("defeat") or l:find("killed") ~= nil
 end
 
 local function applyReplace(lbl)
